@@ -1,4 +1,4 @@
 - 👋 Hi, I’m @carpe-diem
 - 👀 I’m interested in Python - Rust - Web3 - Machine Learning
-- 🌱 I’m currently learning Data Science and Rust
-- 📫 Reach me at [Twitter](https://twitter.com/carpedev)
+- 🌱 I’m currently learning Rust
+- 📫 Reach me at [Twitter](https://twitter.com/carpedev) | [Linkedin](https://www.linkedin.com/in/paparelli/)https://www.linkedin.com/in/paparelli/ | [Twitch](https://www.twitch.tv/carpedev)https://www.twitch.tv/carpedev
