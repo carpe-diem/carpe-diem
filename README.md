@@ -5,7 +5,7 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 ## 👀 Interests
 - **Python**
 - **Rust**
-- **Artificial Intelligence (AI)**
+- **Artificial Intelligence**
 - **Blockchain**
 
 ## 🌱 Learning
