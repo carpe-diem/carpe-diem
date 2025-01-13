@@ -11,6 +11,7 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 ## 🌱 Learning
 - Currently diving deep into **Rust**.
 - Exploring the world of **Artificial Intelligence**.
+- Bitcoin and Solana development.
 
 ## 👯 Looking to Collaborate On
 - Projects related to **Artificial Intelligence**.
