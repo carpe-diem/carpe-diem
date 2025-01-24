@@ -15,8 +15,7 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 
 ## 👯 Looking to Collaborate On
 - Projects related to **Artificial Intelligence**.
-- Innovative ideas in **Bitcoin**, **Rust** and **Web3**.
-- Innovative ideas involving **Bitcoi**, **Rust**, and **Web3** technologies.
+- Innovative ideas involving **Bitcoin**, **Rust** and **Web3** technologies.
 
 ## 📫 How to Reach Me
 - [Email](mailto:alberto@paparelli.com.ar)
