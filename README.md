@@ -18,11 +18,11 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 - Innovative ideas involving **Bitcoin**, **Rust** and **Web3** technologies.
 
 ## 📫 How to Reach Me
-- [Email](mailto:alberto@paparelli.com.ar)
-- [Twitter](https://twitter.com/carpedev)
-- [Twitch](https://www.twitch.tv/carpedev)
+- [Email](mailto:alberto@paparelli.com.ar
 - [Linkedin](https://www.linkedin.com/in/paparelli/)
 - [Wellfound](https://wellfound.com/u/paparelli)
+- [Twitter](https://twitter.com/carpedev)
+- [Twitch](https://www.twitch.tv/carpedev)
 
 ## ⚡ Fun Fact
 - Enjoys spending time with family and friends, travelling, and exploring new places.
