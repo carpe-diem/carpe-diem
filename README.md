@@ -17,6 +17,10 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 - Projects related to **Artificial Intelligence**.
 - Innovative ideas involving **Bitcoin**, **Rust** and **Web3** technologies.
 
+## 👀 Side Prejects
+- [StoryPlace.io](https://storyplace.io) Helps Startups improve their products. They receive product feedback, analyze and prioritize the feedback, and enhance features.
+- [GitArena.arr](https://gitarena.app) Turn Pull Request Reviews into a Competitive Sport. GitArena transforms code reviews from a chore into an exciting competition. Track metrics, earn points, and climb the leaderboard.
+ 
 ## 📫 How to Reach Me
 - [Email](mailto:alberto@paparelli.com.ar)
 - [Linkedin](https://www.linkedin.com/in/paparelli/)
