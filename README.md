@@ -9,9 +9,9 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 - **Blockchain**
 
 ## 🌱 Learning
+- Studying a [Master's Degree in Artificial Intelligence](https://www.universidadviu.com/es/master-inteligencia-artificial)
 - Currently diving deep into **Rust**.
 - Exploring the world of **Artificial Intelligence**.
-- Bitcoin and Solana development.
 
 ## 👯 Looking to Collaborate On
 - Projects related to **Artificial Intelligence**.
