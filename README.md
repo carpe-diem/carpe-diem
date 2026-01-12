@@ -6,7 +6,6 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 - **Python**
 - **Rust**
 - **Artificial Intelligence**
-- **Blockchain**
 
 ## 🌱 Learning
 - Studying a [Master's Degree in Artificial Intelligence](https://www.universidadviu.com/es/master-inteligencia-artificial)
@@ -15,7 +14,7 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 
 ## 👯 Looking to Collaborate On
 - Projects related to **Artificial Intelligence**.
-- Innovative ideas involving **Bitcoin**, **Rust** and **Web3** technologies.
+- Innovative ideas involving **AI**, **Python** and **Rust** technologies.
 
 ## 👷🏻‍♂️ Side Prejects
 - [StoryPlace.io](https://storyplace.io) Helps Startups improve their products. They receive product feedback, analyze and prioritize the feedback, and enhance features.
