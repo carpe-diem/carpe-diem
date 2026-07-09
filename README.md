@@ -20,6 +20,7 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 
 - [OTPilot](https://otpilot.app) OTPilot is a Chrome extension that turns any site's 2FA setup page into a one-click add — no QR scanner, no secret keys, no phone. When you visit a login page it's configured for, it fills the TOTP code and submits the form automatically. Everything is stored locally, protected by a master password, and never sent to any server.
 - [Pomodoso](https://pomodoso.com) A focus timer for developers that lives in your browser. It runs Pomodoro sessions, tracks tasks and habits, syncs with Google Calendar, and automatically detects the Linear issue or GitHub PR you have open (or any URL you configure) — so you can start working with one click, no context switching required.
+- [PipeHero](https://pipehero) Develop, debug & ship webhooks. Tunnel public traffic to your machine, inspect and replay every request, and debug it with your team — or hand it to your AI agent via MCP.
 - [GitArena.app](https://gitarena.app) Turn Pull Request Reviews into a Competitive Sport. GitArena transforms code reviews from a chore into an exciting competition. Track metrics, earn points, and climb the leaderboard.
 - [StoryPlace.io](https://storyplace.io) Helps Startups improve their products. They receive product feedback, analyze and prioritize the feedback, and enhance features.
   
