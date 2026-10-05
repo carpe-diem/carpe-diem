@@ -5,10 +5,12 @@
 command = /opt/homebrew/bin/herdr
 
 # --- Font ---
-font-family = "JetBrains Mono"
-font-family-bold = "JetBrains Mono Bold"
-font-family-italic = "JetBrains Mono Italic"
-font-family-bold-italic = "JetBrains Mono Bold Italic"
+# Nerd Font Mono variant (fixed glyph width) so Neovim/LazyVim icons render
+# without breaking column alignment
+font-family = "JetBrainsMono Nerd Font Mono"
+font-family-bold = "JetBrainsMono Nerd Font Mono"
+font-family-italic = "JetBrainsMono Nerd Font Mono"
+font-family-bold-italic = "JetBrainsMono Nerd Font Mono"
 font-size = 14
 font-thicken = true
 adjust-cursor-thickness = 175%

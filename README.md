@@ -35,4 +35,46 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 - Enjoys spending time with family and friends, travelling, and exploring new places.
 - Passionate about reading, especially topics related to technology and science.
 
+## ⚙️ Dotfiles
+
+This repo doubles as my dev environment config: Ghostty pinned as a dedicated host for
+[Herdr](https://herdr.dev), Herdr's own theme/keybind setup, and a [LazyVim](https://www.lazyvim.org)-based
+Neovim config (Python LSP, file tree, git blame on the current line, a trimmed-down Ruff rule set,
+lazygit wired to `<leader>gg`).
+See [`configs/`](./configs) for the files and [`INSTALL_PROMPT.md`](./INSTALL_PROMPT.md) for a
+ready-to-paste prompt that has an AI agent install all of it on a new machine, so every machine
+ends up with the same setup.
+
+```
+.
+├── INSTALL_PROMPT.md
+├── README.md
+└── configs
+    ├── ghostty
+    │   └── config
+    ├── herdr
+    │   ├── config.toml
+    │   └── scripts
+    │       └── close-pane-safe.sh
+    └── nvim
+        ├── .gitignore
+        ├── .neoconf.json
+        ├── init.lua
+        ├── lazy-lock.json
+        ├── lazyvim.json
+        ├── LICENSE
+        ├── stylua.toml
+        └── lua
+            ├── config
+            │   ├── autocmds.lua
+            │   ├── keymaps.lua
+            │   ├── lazy.lua
+            │   └── options.lua
+            └── plugins
+                ├── diagnostics.lua
+                ├── example.lua
+                ├── gitsigns.lua
+                └── python.lua
+```
+
 Thank you for visiting my profile! Feel free to check out my repositories and get in touch.
