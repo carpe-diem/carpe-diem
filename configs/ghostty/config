@@ -1,0 +1,92 @@
+# Ghostty — dedicated Herdr host.
+# General terminal usage lives in Kitty; this window is a single surface that runs Herdr.
+
+# --- Launch Herdr instead of a shell ---
+command = /opt/homebrew/bin/herdr
+
+# --- Font ---
+font-family = "JetBrains Mono"
+font-family-bold = "JetBrains Mono Bold"
+font-family-italic = "JetBrains Mono Italic"
+font-family-bold-italic = "JetBrains Mono Bold Italic"
+font-size = 14
+font-thicken = true
+adjust-cursor-thickness = 175%
+# Taller rows: gives Herdr's tab bar (a TUI text row) and all text more breathing room
+adjust-cell-height = 25%
+
+# --- Theme: pinned dark ---
+# Always TokyoNight regardless of macOS appearance — remote clients (Termius)
+# are dark, and a mixed light/dark chain restyled running Claude sessions
+theme = TokyoNight
+background-opacity = 1
+window-colorspace = display-p3
+
+# --- Window: maximized, no title bar (fullscreen-like, keeps rounded corners) ---
+macos-titlebar-style = hidden
+maximize = true
+# No padding — Herdr draws its own chrome edge to edge
+window-padding-x = 0
+window-padding-y = 0
+window-save-state = always
+macos-non-native-fullscreen = true
+macos-option-as-alt = left
+confirm-close-surface = false
+# Keep the block cursor at prompts — shell integration otherwise switches it to
+# a thin beam that's easy to lose (the zshrc precmd hook covers Herdr's panes)
+shell-integration-features = no-cursor
+cursor-style = block
+
+# --- Behavior ---
+copy-on-select = true
+mouse-hide-while-typing = true
+link-url = true
+scrollback-limit = 10000000
+auto-update-channel = tip
+
+# --- Keybinds ---
+keybind = shift+enter=text:\x1b\r
+
+# cmd+f opens the pane's scrollback in $EDITOR (Herdr prefix+e) — search there with /
+# Fullscreen stays on Ghostty's default cmd+enter
+keybind = super+f=text:\x02e
+
+# Free cmd+e so it reaches Herdr (bound there to the file-viewer plugin);
+# cmd+r needs nothing — Ghostty leaves it unbound and Herdr binds reviewr to it
+keybind = super+e=unbind
+
+# cmd+d / cmd+shift+d split panes inside Herdr instead of Ghostty
+# (sends Herdr's prefix chord: ctrl+b then v / minus)
+keybind = super+d=text:\x02v
+keybind = super+shift+d=text:\x02-
+
+# cmd+t creates a new Herdr tab (sends Herdr's prefix chord: ctrl+b then c)
+# — replaces Ghostty's own new_tab, keeping this window single-tab
+keybind = super+t=text:\x02c
+
+# cmd+w closes the focused Herdr pane via Herdr's close-pane-safe.sh
+# (unbind lets the raw key reach Herdr's [[keys.command]] binding, which warns
+# and requires a second press when the pane's agent is working/blocked);
+# cmd+shift+w closes the Herdr tab
+keybind = super+w=unbind
+keybind = super+shift+w=text:\x02X
+
+# cmd+1..9 switch Herdr tabs (sends Herdr's prefix chord: ctrl+b then the digit)
+keybind = super+1=text:\x021
+keybind = super+2=text:\x022
+keybind = super+3=text:\x023
+keybind = super+4=text:\x024
+keybind = super+5=text:\x025
+keybind = super+6=text:\x026
+keybind = super+7=text:\x027
+keybind = super+8=text:\x028
+keybind = super+9=text:\x029
+keybind = super+digit_1=text:\x021
+keybind = super+digit_2=text:\x022
+keybind = super+digit_3=text:\x023
+keybind = super+digit_4=text:\x024
+keybind = super+digit_5=text:\x025
+keybind = super+digit_6=text:\x026
+keybind = super+digit_7=text:\x027
+keybind = super+digit_8=text:\x028
+keybind = super+digit_9=text:\x029

@@ -1,0 +1,31 @@
+onboarding = false
+[theme]
+# Pinned dark: attaching from a dark client (Termius) used to flip the theme
+# mid-session and restyle running Claude instances
+name = "tokyo-night"
+auto_switch = false
+
+[ui]
+agent_panel_sort = "spaces"
+
+# In-app toasts, needed for close-pane-safe.sh's "press cmd+w again" warning
+[ui.toast]
+delivery = "herdr"
+
+# Plugin keybindings — cmd chords reach herdr through Ghostty's kitty keyboard protocol
+[[keys.command]]
+key = "cmd+r"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+
+[[keys.command]]
+key = "cmd+e"
+type = "plugin_action"
+command = "herdr-file-viewer.open-file-viewer"
+
+# cmd+w closes the focused pane, but asks for a second press when its agent
+# is working/blocked (requires super+w=unbind in Ghostty so the key reaches herdr)
+[[keys.command]]
+key = "cmd+w"
+type = "shell"
+command = "/Users/albertopaparelli/.config/herdr/scripts/close-pane-safe.sh"
