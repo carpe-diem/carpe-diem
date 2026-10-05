@@ -45,36 +45,5 @@ See [`configs/`](./configs) for the files and [`INSTALL_PROMPT.md`](./INSTALL_PR
 ready-to-paste prompt that has an AI agent install all of it on a new machine, so every machine
 ends up with the same setup.
 
-```
-.
-├── INSTALL_PROMPT.md
-├── README.md
-└── configs
-    ├── ghostty
-    │   └── config
-    ├── herdr
-    │   ├── config.toml
-    │   └── scripts
-    │       └── close-pane-safe.sh
-    └── nvim
-        ├── .gitignore
-        ├── .neoconf.json
-        ├── init.lua
-        ├── lazy-lock.json
-        ├── lazyvim.json
-        ├── LICENSE
-        ├── stylua.toml
-        └── lua
-            ├── config
-            │   ├── autocmds.lua
-            │   ├── keymaps.lua
-            │   ├── lazy.lua
-            │   └── options.lua
-            └── plugins
-                ├── diagnostics.lua
-                ├── example.lua
-                ├── gitsigns.lua
-                └── python.lua
-```
 
 Thank you for visiting my profile! Feel free to check out my repositories and get in touch.
