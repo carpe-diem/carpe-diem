@@ -24,13 +24,20 @@ theme = TokyoNight
 background-opacity = 1
 window-colorspace = display-p3
 
-# --- Window: maximized, no title bar (fullscreen-like, keeps rounded corners) ---
-macos-titlebar-style = hidden
+# --- Window: maximized (fullscreen-like, keeps rounded corners) ---
+# "transparent" (Ghostty's own default) instead of "hidden" — keeps a
+# draggable titlebar strip so the window can be moved between monitors;
+# "hidden" removes that drag area entirely (only option+click-on-frame works).
+macos-titlebar-style = transparent
 maximize = true
 # No padding — Herdr draws its own chrome edge to edge
 window-padding-x = 0
 window-padding-y = 0
-window-save-state = always
+# "never": Herdr already persists the session itself, so Ghostty shouldn't
+# also remember/restore split or tab layout — doing both duplicated panes
+# across restarts, each one independently launching `herdr` into the same
+# shared session (same content shown N times).
+window-save-state = never
 macos-non-native-fullscreen = true
 macos-option-as-alt = left
 confirm-close-surface = false
