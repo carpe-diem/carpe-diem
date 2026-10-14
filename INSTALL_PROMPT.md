@@ -20,8 +20,9 @@ asking for confirmation before any destructive step.
 5. Install `fd` via Homebrew (`brew install fd`) if not already installed — the Neovim file/symbol
    picker (Snacks) needs it.
 6. Install `lazygit` via Homebrew (`brew install lazygit`) if not already installed — LazyVim
-   auto-detects it and wires up `<leader>gg`/`<leader>gG` once the binary is on PATH, no config
-   changes needed.
+   auto-detects it and wires up `<leader>gg`/`<leader>gG` once the binary is on PATH (its own
+   config, which renders diffs with delta, is copied in step 9). Also install `git-delta` (`brew install git-delta`, binary is `delta`) if
+   not already installed — it's git's pager (configured in step 9) and a file-viewer renderer.
 7. Make sure `jq` is available at `/usr/bin/jq` — close-pane-safe.sh calls it by absolute path.
    It ships with macOS 15+; on older macOS run `brew install jq` and update the `JQ=` line in the
    copied script to `$(brew --prefix)/bin/jq`.
@@ -40,7 +41,21 @@ asking for confirmation before any destructive step.
    - https://github.com/carpe-diem/carpe-diem/blob/main/configs/herdr/scripts/close-pane-safe.sh
      -> ~/.config/herdr/scripts/close-pane-safe.sh (make it executable with chmod +x)
    - everything under https://github.com/carpe-diem/carpe-diem/tree/main/configs/nvim
-     -> ~/.config/nvim/ (copy the whole directory tree as-is, preserving the lua/ layout)
+     -> ~/.config/nvim/ (copy the whole directory tree as-is, preserving the lua/ layout). This
+     includes gitsigns.nvim (inline blame) and diffview.nvim (`<leader>gvo` open, `<leader>gvc`
+     close, `<leader>gvf` file history, `<leader>gvh` repo history — under `<leader>gv` because
+     LazyVim already owns `<leader>gd`/`gD`/`gh`).
+   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/git/delta.gitconfig
+     -> ~/.config/git/delta.gitconfig (makes `delta` git's pager; `git-delta` was installed in
+     step 6). Don't overwrite ~/.gitconfig — just include it, only if not already included:
+     `git config --global --get-all include.path | grep -qx '~/.config/git/delta.gitconfig' || git config --global --add include.path '~/.config/git/delta.gitconfig'`
+     Verify with `git config core.pager` (should print `delta`).
+   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/lazygit/config.yml
+     -> `"$(lazygit --print-config-dir)/config.yml"` (on macOS that's
+     `~/Library/Application Support/lazygit/config.yml`, NOT ~/.config/lazygit, unless
+     `XDG_CONFIG_HOME` is set). Makes lazygit render diffs with delta. It uses the
+     `git.diffRenderers` key (lazygit >= 0.65; older versions used `git.paging` — lazygit migrates
+     the old key automatically, so don't "fix" it back).
 10. In the copied ~/.config/herdr/config.toml, replace the close-pane-safe.sh path with the
     absolute path for the current user's home directory (it's hardcoded per-machine).
 11. Validate Herdr's config with `herdr config check` (should print `Config: ok`). If the Herdr
