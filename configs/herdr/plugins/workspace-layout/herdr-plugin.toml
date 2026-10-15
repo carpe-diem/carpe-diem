@@ -1,0 +1,18 @@
+id = "carpe-diem.workspace-layout"
+name = "Workspace Layout"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Open every new workspace with the IA / Services / Git / Code / Console tabs"
+platforms = ["macos", "linux"]
+
+# Runs automatically for every new workspace (no-op if it already has more than one pane)
+[[events]]
+on = "workspace.created"
+command = ["bash", "layout.sh"]
+
+# Manual trigger for an existing workspace (bound to a key in config.toml)
+[[actions]]
+id = "apply"
+title = "Apply IA/Services/Git/Code/Console layout"
+contexts = ["workspace"]
+command = ["bash", "layout.sh"]

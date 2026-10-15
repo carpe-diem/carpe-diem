@@ -29,3 +29,10 @@ command = "herdr-file-viewer.open-file-viewer"
 key = "cmd+w"
 type = "shell"
 command = "/Users/albertopaparelli/.config/herdr/scripts/close-pane-safe.sh"
+
+# Re-apply the IA/Services/Git/Code/Console tabs to the current workspace
+# (new workspaces get them automatically; only acts on a single-pane workspace)
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "carpe-diem.workspace-layout.apply"

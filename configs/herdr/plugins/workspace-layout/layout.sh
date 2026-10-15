@@ -1,0 +1,56 @@
+#!/bin/bash
+# Builds the standard tab set in a Herdr workspace, all rooted at its cwd:
+#   IA (claude) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
+# Only touches a workspace that is still a single pane, so it never clobbers
+# a layout you already arranged (or one restored after a server restart).
+set -euo pipefail
+
+HERDR="${HERDR_BIN_PATH:-herdr}"
+JQ=/usr/bin/jq
+command -v "$JQ" >/dev/null || JQ=jq
+
+ctx="${HERDR_PLUGIN_CONTEXT_JSON:-{\}}"
+ws="${HERDR_WORKSPACE_ID:-$("$JQ" -r '.workspace_id // empty' <<<"$ctx")}"
+[ -n "$ws" ] || { echo "no workspace in context" >&2; exit 0; }
+
+ws_json=$("$HERDR" workspace get "$ws")
+pane_count=$("$JQ" -r '.result.workspace.pane_count' <<<"$ws_json")
+if [ "$pane_count" != 1 ]; then
+  echo "workspace $ws already has $pane_count panes; leaving it alone"
+  exit 0
+fi
+
+root_tab=$("$JQ" -r '.result.workspace.active_tab_id' <<<"$ws_json")
+root_pane=$("$HERDR" pane list --workspace "$ws" | "$JQ" -r '.result.panes[0].pane_id')
+cwd=$("$JQ" -r '.workspace_cwd // .focused_pane_cwd // empty' <<<"$ctx")
+[ -n "$cwd" ] || cwd=$("$HERDR" pane get "$root_pane" | "$JQ" -r '.result.pane.cwd')
+
+new_tab() { # label -> prints root pane id
+  "$HERDR" tab create --workspace "$ws" --cwd "$cwd" --label "$1" --no-focus \
+    | "$JQ" -r '.result.root_pane.pane_id'
+}
+split() { # pane direction -> prints new pane id
+  "$HERDR" pane split "$1" --direction "$2" --cwd "$cwd" --no-focus \
+    | "$JQ" -r '.result.pane.pane_id'
+}
+
+# IA: reuse the workspace's initial tab
+"$HERDR" tab rename "$root_tab" IA >/dev/null
+"$HERDR" pane run "$root_pane" claude >/dev/null
+
+# Services: 2x2 grid of shells
+top_left=$(new_tab Services)
+top_right=$(split "$top_left" right)
+split "$top_left" down >/dev/null
+split "$top_right" down >/dev/null
+
+git_pane=$(new_tab Git)
+"$HERDR" pane run "$git_pane" lazygit >/dev/null
+
+code_pane=$(new_tab Code)
+"$HERDR" pane run "$code_pane" nvim >/dev/null
+
+new_tab Console >/dev/null
+
+"$HERDR" tab focus "$root_tab" >/dev/null
+echo "layout applied to $ws ($cwd)"

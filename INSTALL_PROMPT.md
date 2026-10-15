@@ -15,52 +15,59 @@ asking for confirmation before any destructive step.
    `claude: current`: `herdr integration install claude`.
 3. Install Ghostty via Homebrew (`brew install --cask ghostty`) if not already installed — it's
    the dedicated Herdr host (its config launches `/opt/homebrew/bin/herdr` directly).
-4. Install Neovim via Homebrew (`brew install neovim`) if not already installed — steps 12–13
+4. Install Neovim via Homebrew (`brew install neovim`) if not already installed — steps 13–14
    need it.
 5. Install `fd` via Homebrew (`brew install fd`) if not already installed — the Neovim file/symbol
    picker (Snacks) needs it.
 6. Install `lazygit` via Homebrew (`brew install lazygit`) if not already installed — LazyVim
    auto-detects it and wires up `<leader>gg`/`<leader>gG` once the binary is on PATH (its own
-   config, which renders diffs with delta, is copied in step 9). Also install `git-delta` (`brew install git-delta`, binary is `delta`) if
-   not already installed — it's git's pager (configured in step 9) and a file-viewer renderer.
-7. Make sure `jq` is available at `/usr/bin/jq` — close-pane-safe.sh calls it by absolute path.
+   config, which renders diffs with delta, is copied in step 10). Also install `git-delta` (`brew install git-delta`, binary is `delta`) if
+   not already installed — it's git's pager (configured in step 10) and a file-viewer renderer.
+7. Make sure `jq` is available at `/usr/bin/jq` — close-pane-safe.sh and the layout plugin call it
+   by absolute path.
    It ships with macOS 15+; on older macOS run `brew install jq` and update the `JQ=` line in the
    copied script to `$(brew --prefix)/bin/jq`.
-8. Install the Herdr plugins the config binds keys to, skipping any already listed by
-   `herdr plugin list`:
-   - `herdr plugin install persiyanov/herdr-reviewr` (cmd+r -> `persiyanov.reviewr.toggle`)
-   - `herdr plugin install smarzban/herdr-file-viewer` (cmd+e ->
-     `herdr-file-viewer.open-file-viewer`), plus its renderers so markdown/diffs/code are styled:
-     `brew install glow git-delta bat`
-9. Back up any existing local config before overwriting it, then copy these files from the repo
-   into place:
-   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/ghostty/config
-     -> ~/.config/ghostty/config
-   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/herdr/config.toml
-     -> ~/.config/herdr/config.toml
-   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/herdr/scripts/close-pane-safe.sh
-     -> ~/.config/herdr/scripts/close-pane-safe.sh (make it executable with chmod +x)
-   - everything under https://github.com/carpe-diem/carpe-diem/tree/main/configs/nvim
-     -> ~/.config/nvim/ (copy the whole directory tree as-is, preserving the lua/ layout). This
-     includes gitsigns.nvim (inline blame) and diffview.nvim (`<leader>gvo` open, `<leader>gvc`
-     close, `<leader>gvf` file history, `<leader>gvh` repo history — under `<leader>gv` because
-     LazyVim already owns `<leader>gd`/`gD`/`gh`).
-   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/git/delta.gitconfig
-     -> ~/.config/git/delta.gitconfig (makes `delta` git's pager; `git-delta` was installed in
-     step 6). Don't overwrite ~/.gitconfig — just include it, only if not already included:
-     `git config --global --get-all include.path | grep -qx '~/.config/git/delta.gitconfig' || git config --global --add include.path '~/.config/git/delta.gitconfig'`
-     Verify with `git config core.pager` (should print `delta`).
-   - https://github.com/carpe-diem/carpe-diem/blob/main/configs/lazygit/config.yml
-     -> `"$(lazygit --print-config-dir)/config.yml"` (on macOS that's
-     `~/Library/Application Support/lazygit/config.yml`, NOT ~/.config/lazygit, unless
-     `XDG_CONFIG_HOME` is set). Makes lazygit render diffs with delta. It uses the
-     `git.diffRenderers` key (lazygit >= 0.65; older versions used `git.paging` — lazygit migrates
-     the old key automatically, so don't "fix" it back).
-10. In the copied ~/.config/herdr/config.toml, replace the close-pane-safe.sh path with the
-    absolute path for the current user's home directory (it's hardcoded per-machine).
-11. Validate Herdr's config with `herdr config check` (should print `Config: ok`). If the Herdr
-    server is running (`herdr status`), also reload it with `herdr server reload-config`;
-    otherwise skip the reload — the config is read when Herdr first starts.
+8. Install `claude` (Claude Code) if not already on PATH — new Herdr workspaces start it in their
+   `IA` tab (see step 10).
+9. Clone the repo to `~/code/carpe-diem` if it isn't there yet
+   (`git clone https://github.com/carpe-diem/carpe-diem ~/code/carpe-diem`); if it already exists,
+   leave it alone (step 10 pulls it).
+10. Run `~/code/carpe-diem/update.sh`. It is idempotent and only copies files that differ,
+    backing up anything it overwrites to `~/.config/carpe-diem-backups/<timestamp>/`. It:
+    - pulls the repo (`git pull --ff-only`, skipped if the clone has local changes)
+    - copies `configs/ghostty/config` -> ~/.config/ghostty/config
+    - copies `configs/herdr/config.toml` -> ~/.config/herdr/config.toml, rewriting the hardcoded
+      `/Users/<user>/.config/herdr/` script paths to the current `$HOME`
+    - copies `configs/herdr/scripts/` -> ~/.config/herdr/scripts/ (chmod +x). The cmd+w guard,
+      close-pane-safe.sh, calls jq at `/usr/bin/jq` (see step 7)
+    - copies `configs/herdr/plugins/workspace-layout/` -> ~/.config/herdr/local-plugins/workspace-layout/
+      and `herdr plugin link`s it. On `workspace.created` it builds the tabs
+      IA (claude) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
+      workspace's directory. It only touches single-pane workspaces; `prefix+shift+l` applies it
+      to an existing one
+    - installs the Herdr plugins the config binds keys to, if missing:
+      `persiyanov/herdr-reviewr` (cmd+r) and `smarzban/herdr-file-viewer` (cmd+e; its renderers
+      come from `brew install glow git-delta bat`, which you should run if they're missing)
+    - copies `configs/nvim/` -> ~/.config/nvim/ (the whole tree, including gitsigns.nvim and
+      diffview.nvim: `<leader>gvo` open, `<leader>gvc` close, `<leader>gvf` file history,
+      `<leader>gvh` repo history, all under `<leader>gv` because LazyVim already owns
+      `<leader>gd`/`gD`/`gh`)
+    - copies `configs/git/delta.gitconfig` -> ~/.config/git/delta.gitconfig and adds it to
+      `include.path` in ~/.gitconfig if it isn't there already (it never overwrites ~/.gitconfig)
+    - copies `configs/lazygit/config.yml` -> `"$(lazygit --print-config-dir)/config.yml"` (on macOS
+      that's ~/Library/Application Support/lazygit/, not ~/.config/lazygit). It uses the
+      `git.diffRenderers` key (lazygit >= 0.65). Don't "fix" it back to `git.paging`
+    - runs `herdr config check` (must print `Config: ok`) and `herdr server reload-config` if the
+      server is running
+    - runs `nvim --headless "+Lazy! restore" +qa` when the Neovim config changed. On a fresh
+      machine that clones every plugin and can take 10+ minutes, so run it with a generous timeout.
+      Step 13 still verifies the result
+    Show its output. Verify with `git config core.pager` (should print `delta`) and
+    `herdr plugin list` (should list `carpe-diem.workspace-layout`, `persiyanov.reviewr` and
+    `herdr-file-viewer`).
+11. Sanity-check the layout: `herdr workspace create --cwd ~/code/carpe-diem --label layout-test --no-focus`,
+    then `herdr tab list --workspace <id>` should show IA, Services (4 panes), Git, Code and Console.
+    Close it with `herdr workspace close <id>`. Skip this step if the Herdr server isn't running.
 12. Make sure the Nerd Font used by Ghostty (`JetBrainsMono Nerd Font Mono`) is installed (e.g. via
     `brew install --cask font-jetbrains-mono-nerd-font`), otherwise Neovim's icons render as boxes.
 13. Bootstrap Neovim's plugins without waiting for a slow first launch:
@@ -79,3 +86,16 @@ asking for confirmation before any destructive step.
     after that.
 16. Report what was installed, what was skipped (already present), and how to verify it.
 ```
+
+## Updating
+
+After changing a config in the repo (and pushing it), run this on every other machine:
+
+```
+~/code/carpe-diem/update.sh
+```
+
+It pulls, copies only what changed (with backups), reloads Herdr and, if the Neovim config
+changed, runs `Lazy! restore` to match `lazy-lock.json`. Use `./update.sh --no-pull` to apply
+uncommitted local edits on the machine you're working on. Ghostty needs `cmd+shift+,` to pick up
+its config.

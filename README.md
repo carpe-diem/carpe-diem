@@ -43,7 +43,10 @@ Neovim config (Python LSP, file tree, git blame on the current line, a trimmed-d
 lazygit wired to `<leader>gg`).
 See [`configs/`](./configs) for the files and [`INSTALL_PROMPT.md`](./INSTALL_PROMPT.md) for a
 ready-to-paste prompt that has an AI agent install all of it on a new machine, so every machine
-ends up with the same setup.
+ends up with the same setup. New Herdr workspaces open with the tabs IA (claude), Services
+(2x2 shells), Git (lazygit), Code (nvim) and Console. After changing a config, push it and run
+[`./update.sh`](./update.sh) on each machine to apply it (it pulls, copies only what changed, and
+backs up whatever it overwrites).
 
 
 Thank you for visiting my profile! Feel free to check out my repositories and get in touch.
