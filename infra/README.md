@@ -57,7 +57,14 @@ Host devbox
   LocalForward 443 127.0.0.1:443
 ```
 
-macOS lets regular users bind ports < 1024, so no sudo is needed. Trust the CA on the laptop too:
+The OpenSSH client refuses to forward ports < 1024 unless run as root ("Privileged ports can
+only be forwarded by root"), so open the tunnel with sudo, keeping your config, agent and known hosts:
+
+```sh
+sudo --preserve-env=SSH_AUTH_SOCK ssh -N -F ~/.ssh/config -o UserKnownHostsFile=$HOME/.ssh/known_hosts devbox
+```
+
+Trust the CA on the laptop too:
 
 ```sh
 scp devbox:code/carpe-diem/infra/caddy/local-ca.crt /tmp/
