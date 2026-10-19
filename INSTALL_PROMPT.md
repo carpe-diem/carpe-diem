@@ -84,7 +84,24 @@ asking for confirmation before any destructive step.
 15. Open any Python file in a real project and run `:VenvSelect` (`<leader>cv`) once to point
     Pyright at that project's virtualenv (e.g. `.venv/bin/python3`) — it gets cached per project
     after that.
-16. Report what was installed, what was skipped (already present), and how to verify it.
+16. Ask me whether this machine should also run the shared dev infrastructure in
+    `~/code/carpe-diem/infra` (Postgres, S3/SeaweedFS, Logto, Mailpit, optional Valkey, Caddy on
+    `*.localhost`; see `infra/README.md`). Skip this step if I say no. If yes:
+    - Use Podman (not Docker). Install it if missing:
+      `brew install podman podman-compose` and `brew install --cask podman-desktop`.
+    - Create the VM if `podman machine list` shows none:
+      `podman machine init --cpus 4 --memory 4096 --disk-size 50`. Start it with
+      `podman machine start` if it isn't running.
+    - Run `~/code/carpe-diem/infra/infra up`. On the first run it lowers
+      `net.ipv4.ip_unprivileged_port_start` to 80 inside the Podman VM (persisted in
+      `/etc/sysctl.d/`) so Caddy can serve `*.localhost` on port 80; that's expected.
+    - Verify with `infra/infra status` (all services up) and
+      `curl -s -o /dev/null -w '%{http_code}' http://logto.localhost/oidc/.well-known/openid-configuration`
+      (should print 200). Remind me that the first visit to http://logto-admin.localhost creates
+      the Logto admin account.
+    - Don't create any project databases; each project's own setup does that via
+      `infra/infra project create <name>`.
+17. Report what was installed, what was skipped (already present), and how to verify it.
 ```
 
 ## Updating

@@ -1,0 +1,202 @@
+#!/bin/bash
+# Manage the shared local dev infrastructure (see README.md).
+# Uses podman if available, otherwise docker (override with INFRA_ENGINE=docker|podman).
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SITES="$DIR/caddy/sites"
+
+say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
+die() { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
+
+usage() {
+  cat <<'EOF'
+Usage: infra <command> [args]
+
+  up [--redis]               Start everything (--redis also starts Valkey)
+  down                       Stop everything (data volumes are kept)
+  status                     Show containers
+  logs [service]             Follow logs
+  psql [db]                  Open psql as superuser
+
+  project create <name> [port]
+                             Create database + role + bucket for a project, and a
+                             <name>.localhost site proxying to host <port> if given.
+                             Prints the env vars to use. Safe to re-run.
+  project env <name>         Print the env vars for a project
+  project drop <name>        Drop the project's database, role, bucket and site
+  db reset <name>            Drop and recreate the project's database (empty)
+
+  site add <name> <port>     <name>.localhost and *.<name>.localhost -> host:<port>
+  site rm <name>             Remove a site
+
+  backup                     pg_dumpall to backups/<timestamp>.sql.gz
+EOF
+}
+
+detect_engine() {
+  if [ -n "${INFRA_ENGINE:-}" ]; then echo "$INFRA_ENGINE"; return; fi
+  if command -v podman >/dev/null; then echo podman; return; fi
+  if command -v docker >/dev/null; then echo docker; return; fi
+  die "neither podman nor docker found"
+}
+ENGINE="$(detect_engine)"
+
+compose() { "$ENGINE" compose -f "$DIR/compose.yaml" "$@"; }
+psql_super() { compose exec -T postgres psql -U postgres -v ON_ERROR_STOP=1 -q "$@"; }
+weed_shell() { printf '%s\n' "$1" | compose exec -T seaweedfs weed shell -master=localhost:9333 -filer=localhost:8888 >/dev/null 2>&1; }
+caddy_reload() { compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true; }
+
+valid_name() {
+  [[ "${1:-}" =~ ^[a-z][a-z0-9_]{1,40}$ ]] || die "invalid name '${1:-}' (use lowercase letters, digits, _)"
+}
+
+wait_postgres() {
+  for _ in $(seq 1 30); do
+    compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && return
+    sleep 1
+  done
+  die "postgres did not become ready"
+}
+
+wait_s3() {
+  for _ in $(seq 1 60); do
+    curl -s -o /dev/null "http://localhost:${S3_PORT:-8333}/" && return
+    sleep 1
+  done
+  die "S3 (seaweedfs) did not become ready"
+}
+
+host() { echo "${1//_/-}"; }  # hostnames can't have underscores
+
+site_add() {
+  local name="$1" port="$2" h
+  h="$(host "$name")"
+  cat >"$SITES/$name.caddy" <<EOF
+http://$h.localhost, http://*.$h.localhost {
+	reverse_proxy host.docker.internal:$port
+}
+EOF
+  caddy_reload
+  say "Site http://$h.localhost (and *.$h.localhost) -> localhost:$port"
+}
+
+project_env() {
+  local name="$1"
+  cat <<EOF
+DATABASE_URL=postgres://$name:$name@localhost:${POSTGRES_PORT:-5432}/$name
+S3_ENDPOINT=http://localhost:${S3_PORT:-8333}
+S3_BUCKET=$name
+S3_REGION=us-east-1
+S3_ACCESS_KEY_ID=dev
+S3_SECRET_ACCESS_KEY=dev
+SMTP_URL=smtp://localhost:${SMTP_PORT:-1025}
+LOGTO_ENDPOINT=${LOGTO_ENDPOINT:-http://logto.localhost}
+LOGTO_ISSUER=${LOGTO_ENDPOINT:-http://logto.localhost}/oidc
+LOGTO_JWKS_URL=http://localhost:${LOGTO_PORT:-3001}/oidc/jwks
+EOF
+  [ -f "$SITES/$name.caddy" ] && echo "APP_URL=http://$(host "$name").localhost"
+  return 0
+}
+
+# Load .env overrides so printed URLs match the running ports
+[ -f "$DIR/.env" ] && set -a && . "$DIR/.env" && set +a
+
+export PODMAN_COMPOSE_WARNING_LOGS=false
+if [ "$ENGINE" = podman ] && [ "$(uname)" = Darwin ] && [ "${CADDY_HTTP_PORT:-80}" -lt 1024 ] \
+  && [ -z "${CADDY_BIND+x}" ]; then
+  export CADDY_BIND=""
+fi
+
+# Rootless Podman's VM only lets containers bind ports >= 1024 by default.
+# Persistently lower that limit inside the VM (doesn't touch the host).
+podman_allow_low_ports() {
+  local port="${CADDY_HTTP_PORT:-80}" current
+  [ "$ENGINE" = podman ] && [ "$(uname)" = Darwin ] && [ "$port" -lt 1024 ] || return 0
+  current="$(podman machine ssh "sysctl -n net.ipv4.ip_unprivileged_port_start" 2>/dev/null | tr -d '\r')"
+  [ -n "$current" ] && [ "$current" -le "$port" ] && return 0
+  say "Allowing ports >= $port in the Podman VM"
+  podman machine ssh "echo 'net.ipv4.ip_unprivileged_port_start=$port' | sudo tee /etc/sysctl.d/99-unprivileged-ports.conf >/dev/null && sudo sysctl -q --system"
+}
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  up)
+    profile=()
+    [ "${1:-}" = "--redis" ] && profile=(--profile redis)
+    say "Starting dev infra with $ENGINE"
+    podman_allow_low_ports
+    compose ${profile[@]+"${profile[@]}"} up -d
+    wait_postgres
+    say "Ready:"
+    echo "    Logto console  http://logto-admin.localhost   (first visit creates the admin account)"
+    echo "    Mail           http://mail.localhost"
+    echo "    Postgres UI    http://db.localhost"
+    echo "    S3 filer UI    http://s3.localhost"
+    ;;
+  down) compose --profile redis down ;;
+  status) compose --profile redis ps ;;
+  logs) compose logs -f "$@" ;;
+  psql) compose exec postgres psql -U postgres "${1:-postgres}" ;;
+
+  project)
+    sub="${1:-}"; name="${2:-}"
+    valid_name "$name"
+    case "$sub" in
+      create)
+        wait_postgres
+        say "Postgres: role + database '$name'"
+        psql_super <<SQL
+DO \$\$ BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$name') THEN
+    CREATE ROLE "$name" LOGIN PASSWORD '$name' CREATEDB;
+  END IF;
+END \$\$;
+SELECT 'CREATE DATABASE "$name" OWNER "$name"'
+  WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '$name') \gexec
+SQL
+        say "S3: bucket '$name'"
+        wait_s3
+        weed_shell "s3.bucket.create -name $name" || true
+        [ -n "${3:-}" ] && site_add "$name" "$3"
+        say "Env for $name:"
+        project_env "$name"
+        ;;
+      env) project_env "$name" ;;
+      drop)
+        read -r -p "Drop database, role, bucket and site of '$name'? [y/N] " ok
+        [ "$ok" = "y" ] || exit 1
+        psql_super -c "DROP DATABASE IF EXISTS \"$name\" WITH (FORCE)" -c "DROP ROLE IF EXISTS \"$name\""
+        weed_shell "s3.bucket.delete -name $name" || true
+        rm -f "$SITES/$name.caddy" && caddy_reload
+        say "Dropped $name"
+        ;;
+      *) usage; exit 1 ;;
+    esac
+    ;;
+
+  db)
+    [ "${1:-}" = "reset" ] || { usage; exit 1; }
+    valid_name "${2:-}"
+    psql_super -c "DROP DATABASE IF EXISTS \"$2\" WITH (FORCE)" -c "CREATE DATABASE \"$2\" OWNER \"$2\""
+    say "Database $2 recreated (empty)"
+    ;;
+
+  site)
+    case "${1:-}" in
+      add) valid_name "${2:-}"; [[ "${3:-}" =~ ^[0-9]+$ ]] || die "port required"; site_add "$2" "$3" ;;
+      rm) valid_name "${2:-}"; rm -f "$SITES/$2.caddy"; caddy_reload; say "Removed site $2" ;;
+      *) usage; exit 1 ;;
+    esac
+    ;;
+
+  backup)
+    mkdir -p "$DIR/backups"
+    out="$DIR/backups/$(date +%Y%m%d-%H%M%S).sql.gz"
+    compose exec -T postgres pg_dumpall -U postgres | gzip >"$out"
+    say "Backup written to $out"
+    ;;
+
+  ""|-h|--help|help) usage ;;
+  *) usage; exit 1 ;;
+esac

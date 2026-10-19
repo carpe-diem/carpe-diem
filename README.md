@@ -48,5 +48,9 @@ ends up with the same setup. New Herdr workspaces open with the tabs IA (claude)
 [`./update.sh`](./update.sh) on each machine to apply it (it pulls, copies only what changed, and
 backs up whatever it overwrites).
 
+It also holds my shared local dev infrastructure in [`infra/`](./infra): one Postgres, S3
+(SeaweedFS), Logto, Mailpit and Caddy on `*.localhost` for every project, each project getting its
+own database, bucket and site via `infra/infra project create <name>`. Works with Docker or Podman.
+
 
 Thank you for visiting my profile! Feel free to check out my repositories and get in touch.

@@ -1,0 +1,26 @@
+{
+	auto_https off
+}
+
+http://logto.localhost {
+	reverse_proxy logto:3001
+}
+
+http://logto-admin.localhost {
+	reverse_proxy logto:3002
+}
+
+http://mail.localhost {
+	reverse_proxy mailpit:8025
+}
+
+http://db.localhost {
+	reverse_proxy pgweb:8081
+}
+
+# SeaweedFS filer UI (browse buckets under /buckets)
+http://s3.localhost {
+	reverse_proxy seaweedfs:8888
+}
+
+import /etc/caddy/sites/*.caddy

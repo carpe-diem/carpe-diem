@@ -1,0 +1,85 @@
+# Shared local dev infrastructure: one instance of each service for every
+# project. Projects get their own database/bucket/site via `./infra project create`.
+# Works with `docker compose` and `podman compose` (plain Compose spec, named volumes).
+name: devinfra
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports: ["127.0.0.1:${POSTGRES_PORT:-5432}:5432"]
+    # Postgres 18+ images keep PGDATA under /var/lib/postgresql/<major>/
+    volumes: [pg-data:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  pgweb:
+    image: sosedoff/pgweb:0.17.0
+    environment:
+      PGWEB_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/postgres?sslmode=disable
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # S3-compatible storage (MinIO CE is archived). No S3 auth in dev: any key works.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    command: server -dir=/data -s3 -s3.port=8333 -ip.bind=0.0.0.0
+    ports: ["127.0.0.1:${S3_PORT:-8333}:8333"]
+    volumes: [seaweed-data:/data]
+    restart: unless-stopped
+
+  logto:
+    image: svhd/logto:1.45
+    entrypoint: ["sh", "-c", "npm run cli db seed -- --swe && npm start"]
+    environment:
+      TRUST_PROXY_HEADER: 1
+      DB_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/logto
+      ENDPOINT: ${LOGTO_ENDPOINT:-http://logto.localhost}
+      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-http://logto-admin.localhost}
+    ports:
+      - "127.0.0.1:${LOGTO_PORT:-3001}:3001"
+      - "127.0.0.1:${LOGTO_ADMIN_PORT:-3002}:3002"
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:v1.31
+    ports:
+      - "127.0.0.1:${SMTP_PORT:-1025}:1025"
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:9.0-alpine
+    profiles: [redis]
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    volumes: [valkey-data:/data]
+    restart: unless-stopped
+
+  # *.localhost reverse proxy. Project sites live in caddy/sites/*.caddy
+  # (written by `./infra site add`) and point at apps running natively on the host.
+  caddy:
+    image: caddy:2-alpine
+    # CADDY_BIND is set to "" by ./infra for Podman on macOS: its unprivileged
+    # port forwarder can only bind ports < 1024 on all interfaces.
+    ports: ["${CADDY_BIND-127.0.0.1:}${CADDY_HTTP_PORT:-80}:80"]
+    extra_hosts: ["host.docker.internal:host-gateway"]
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/sites:/etc/caddy/sites:ro
+      - caddy-data:/data
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  seaweed-data:
+  valkey-data:
+  caddy-data:
