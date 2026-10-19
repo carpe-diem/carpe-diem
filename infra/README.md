@@ -49,19 +49,13 @@ Logto's issuer is `https://logto.localhost/oidc`, so apps should use the `https:
 machine (e.g. you work over SSH from a laptop), forward Caddy's ports from the laptop; every site
 and app goes through Caddy, so these two ports are enough and all URLs stay the same:
 
-```
-# ~/.ssh/config on the laptop
-Host devbox
-  HostName devbox.local
-  LocalForward 80 127.0.0.1:80
-  LocalForward 443 127.0.0.1:443
-```
-
 The OpenSSH client refuses to forward ports < 1024 unless run as root ("Privileged ports can
-only be forwarded by root"), so open the tunnel with sudo, keeping your config, agent and known hosts:
+only be forwarded by root"), so open the tunnel with sudo. Root's ssh rejects config files owned by
+your user (e.g. `Include`d ones), so skip the config and pass everything explicitly:
 
 ```sh
-sudo --preserve-env=SSH_AUTH_SOCK ssh -N -F ~/.ssh/config -o UserKnownHostsFile=$HOME/.ssh/known_hosts devbox
+sudo ssh -N -F /dev/null -i ~/.ssh/id_ed25519 -o UserKnownHostsFile=$HOME/.ssh/known_hosts \
+  -L 80:127.0.0.1:80 -L 443:127.0.0.1:443 you@devbox.local
 ```
 
 Trust the CA on the laptop too:
