@@ -29,6 +29,7 @@ Usage: infra <command> [args]
 
   site add <name> <port>     <name>.localhost and *.<name>.localhost -> host:<port>
   site rm <name>             Remove a site
+  trust                      Trust Caddy's local CA in the macOS keychain (https://*.localhost)
 
   backup                     pg_dumpall to backups/<timestamp>.sql.gz
 EOF
@@ -73,12 +74,12 @@ site_add() {
   local name="$1" port="$2" h
   h="$(host "$name")"
   cat >"$SITES/$name.caddy" <<EOF
-http://$h.localhost, http://*.$h.localhost {
+http://$h.localhost, http://*.$h.localhost, https://$h.localhost, https://*.$h.localhost {
 	reverse_proxy host.docker.internal:$port
 }
 EOF
   caddy_reload
-  say "Site http://$h.localhost (and *.$h.localhost) -> localhost:$port"
+  say "Site https://$h.localhost (and *.$h.localhost, also http) -> localhost:$port"
 }
 
 project_env() {
@@ -91,11 +92,11 @@ S3_REGION=us-east-1
 S3_ACCESS_KEY_ID=dev
 S3_SECRET_ACCESS_KEY=dev
 SMTP_URL=smtp://localhost:${SMTP_PORT:-1025}
-LOGTO_ENDPOINT=${LOGTO_ENDPOINT:-http://logto.localhost}
-LOGTO_ISSUER=${LOGTO_ENDPOINT:-http://logto.localhost}/oidc
+LOGTO_ENDPOINT=${LOGTO_ENDPOINT:-https://logto.localhost}
+LOGTO_ISSUER=${LOGTO_ENDPOINT:-https://logto.localhost}/oidc
 LOGTO_JWKS_URL=http://localhost:${LOGTO_PORT:-3001}/oidc/jwks
 EOF
-  [ -f "$SITES/$name.caddy" ] && echo "APP_URL=http://$(host "$name").localhost"
+  [ -f "$SITES/$name.caddy" ] && echo "APP_URL=https://$(host "$name").localhost"
   return 0
 }
 
@@ -119,6 +120,31 @@ podman_allow_low_ports() {
   podman machine ssh "echo 'net.ipv4.ip_unprivileged_port_start=$port' | sudo tee /etc/sysctl.d/99-unprivileged-ports.conf >/dev/null && sudo sysctl -q --system"
 }
 
+CA_CERT="$DIR/caddy/local-ca.crt"
+
+# Caddy creates its root CA on first start, inside the caddy-data volume.
+fetch_ca() {
+  for _ in $(seq 1 20); do
+    compose exec -T caddy cat /data/caddy/pki/authorities/local/root.crt >"$CA_CERT" 2>/dev/null && [ -s "$CA_CERT" ] && return
+    sleep 1
+  done
+  die "Caddy's local CA not found (is the infra up?)"
+}
+
+ca_trusted() {
+  [ "$(uname)" = Darwin ] || return 0
+  [ -s "$CA_CERT" ] && security verify-cert -c "$CA_CERT" >/dev/null 2>&1
+}
+
+trust_ca() {
+  fetch_ca
+  if ca_trusted; then say "Caddy local CA already trusted"; return; fi
+  [ "$(uname)" = Darwin ] || die "auto-trust is only implemented for macOS; import $CA_CERT manually"
+  say "Adding Caddy local CA to the login keychain (macOS will ask for your password)"
+  security add-trusted-cert -r trustRoot -k "$HOME/Library/Keychains/login.keychain-db" "$CA_CERT"
+  say "Trusted. Restart the browser if it was open. Firefox uses its own store: import $CA_CERT there."
+}
+
 cmd="${1:-}"; shift || true
 case "$cmd" in
   up)
@@ -129,10 +155,11 @@ case "$cmd" in
     compose ${profile[@]+"${profile[@]}"} up -d
     wait_postgres
     say "Ready:"
-    echo "    Logto console  http://logto-admin.localhost   (first visit creates the admin account)"
-    echo "    Mail           http://mail.localhost"
-    echo "    Postgres UI    http://db.localhost"
-    echo "    S3 filer UI    http://s3.localhost"
+    ca_trusted || echo "    (run './infra trust' once so browsers accept https://*.localhost)"
+    echo "    Logto console  https://logto-admin.localhost   (first visit creates the admin account)"
+    echo "    Mail           https://mail.localhost"
+    echo "    Postgres UI    https://db.localhost"
+    echo "    S3 filer UI    https://s3.localhost"
     ;;
   down) compose --profile redis down ;;
   status) compose --profile redis ps ;;
@@ -189,6 +216,8 @@ SQL
       *) usage; exit 1 ;;
     esac
     ;;
+
+  trust) trust_ca ;;
 
   backup)
     mkdir -p "$DIR/backups"

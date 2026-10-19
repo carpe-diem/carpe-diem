@@ -94,10 +94,12 @@ asking for confirmation before any destructive step.
       `podman machine start` if it isn't running.
     - Run `~/code/carpe-diem/infra/infra up`. On the first run it lowers
       `net.ipv4.ip_unprivileged_port_start` to 80 inside the Podman VM (persisted in
-      `/etc/sysctl.d/`) so Caddy can serve `*.localhost` on port 80; that's expected.
+      `/etc/sysctl.d/`) so Caddy can serve `*.localhost` on ports 80/443; that's expected.
+    - Run `~/code/carpe-diem/infra/infra trust` so the browser accepts `https://*.localhost`
+      (adds Caddy's local CA to the login keychain; macOS asks for my password).
     - Verify with `infra/infra status` (all services up) and
-      `curl -s -o /dev/null -w '%{http_code}' http://logto.localhost/oidc/.well-known/openid-configuration`
-      (should print 200). Remind me that the first visit to http://logto-admin.localhost creates
+      `curl -s -o /dev/null -w '%{http_code}' https://logto.localhost/oidc/.well-known/openid-configuration`
+      (should print 200). Remind me that the first visit to https://logto-admin.localhost creates
       the Logto admin account.
     - Don't create any project databases; each project's own setup does that via
       `infra/infra project create <name>`.

@@ -1,25 +1,29 @@
+# Every site answers on http and https. https uses Caddy's local CA
+# (`./infra trust` adds it to the macOS keychain); no http->https redirect so
+# plain-http clients keep working.
 {
-	auto_https off
+	local_certs
+	auto_https disable_redirects
 }
 
-http://logto.localhost {
+http://logto.localhost, https://logto.localhost {
 	reverse_proxy logto:3001
 }
 
-http://logto-admin.localhost {
+http://logto-admin.localhost, https://logto-admin.localhost {
 	reverse_proxy logto:3002
 }
 
-http://mail.localhost {
+http://mail.localhost, https://mail.localhost {
 	reverse_proxy mailpit:8025
 }
 
-http://db.localhost {
+http://db.localhost, https://db.localhost {
 	reverse_proxy pgweb:8081
 }
 
 # SeaweedFS filer UI (browse buckets under /buckets)
-http://s3.localhost {
+http://s3.localhost, https://s3.localhost {
 	reverse_proxy seaweedfs:8888
 }
 

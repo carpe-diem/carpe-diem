@@ -1,3 +1,4 @@
 caddy/sites/*.caddy
 backups/
 .env
+caddy/local-ca.crt

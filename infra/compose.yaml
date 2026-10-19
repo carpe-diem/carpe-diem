@@ -41,8 +41,8 @@ services:
     environment:
       TRUST_PROXY_HEADER: 1
       DB_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/logto
-      ENDPOINT: ${LOGTO_ENDPOINT:-http://logto.localhost}
-      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-http://logto-admin.localhost}
+      ENDPOINT: ${LOGTO_ENDPOINT:-https://logto.localhost}
+      ADMIN_ENDPOINT: ${LOGTO_ADMIN_ENDPOINT:-https://logto-admin.localhost}
     ports:
       - "127.0.0.1:${LOGTO_PORT:-3001}:3001"
       - "127.0.0.1:${LOGTO_ADMIN_PORT:-3002}:3002"
@@ -70,7 +70,9 @@ services:
     image: caddy:2-alpine
     # CADDY_BIND is set to "" by ./infra for Podman on macOS: its unprivileged
     # port forwarder can only bind ports < 1024 on all interfaces.
-    ports: ["${CADDY_BIND-127.0.0.1:}${CADDY_HTTP_PORT:-80}:80"]
+    ports:
+      - "${CADDY_BIND-127.0.0.1:}${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_BIND-127.0.0.1:}${CADDY_HTTPS_PORT:-443}:443"
     extra_hosts: ["host.docker.internal:host-gateway"]
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
