@@ -43,7 +43,9 @@ detect_engine() {
 }
 ENGINE="$(detect_engine)"
 
-compose() { "$ENGINE" compose -f "$DIR/compose.yaml" "$@"; }
+# Run from the infra dir: podman-compose reads .env from the *current* directory,
+# so calling it from a project would leak that project's .env into the services.
+compose() { (cd "$DIR" && "$ENGINE" compose -f compose.yaml "$@"); }
 psql_super() { compose exec -T postgres psql -U postgres -v ON_ERROR_STOP=1 -q "$@"; }
 weed_shell() { printf '%s\n' "$1" | compose exec -T seaweedfs weed shell -master=localhost:9333 -filer=localhost:8888 >/dev/null 2>&1; }
 caddy_reload() { compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true; }
