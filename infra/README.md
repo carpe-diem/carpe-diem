@@ -45,6 +45,9 @@ Logto's issuer is `https://logto.localhost/oidc`, so apps should use the `https:
 
 ### Using it from another machine (SSH)
 
+> **Not verified yet.** A first try forwarded connections but some failed with
+> `channel N: open failed: connect failed`; it's still unresolved.
+
 `*.localhost` always resolves to the machine running the browser. If the infra runs on another
 machine (e.g. you work over SSH from a laptop), forward Caddy's ports from the laptop; every site
 and app goes through Caddy, so these two ports are enough and all URLs stay the same:
