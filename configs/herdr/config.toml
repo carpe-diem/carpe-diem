@@ -36,3 +36,6 @@ command = "/Users/albertopaparelli/.config/herdr/scripts/close-pane-safe.sh"
 key = "prefix+shift+l"
 type = "plugin_action"
 command = "carpe-diem.workspace-layout.apply"
+
+[ui.sound]
+enabled = false

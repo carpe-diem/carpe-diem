@@ -40,7 +40,8 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 This repo doubles as my dev environment config: Ghostty pinned as a dedicated host for
 [Herdr](https://herdr.dev), Herdr's own theme/keybind setup, and a [LazyVim](https://www.lazyvim.org)-based
 Neovim config (Python LSP, file tree, git blame on the current line, a trimmed-down Ruff rule set,
-lazygit wired to `<leader>gg`).
+lazygit wired to `<leader>gg`), plus [pi](https://pi.dev) with Herdr's integration and a one-line
+footer extension (path · git branch · model · context bar).
 See [`configs/`](./configs) for the files and [`INSTALL_PROMPT.md`](./INSTALL_PROMPT.md) for a
 ready-to-paste prompt that has an AI agent install all of it on a new machine, so every machine
 ends up with the same setup. New Herdr workspaces open with the tabs IA (claude), Services

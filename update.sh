@@ -64,6 +64,9 @@ install_file "$SRC/git/delta.gitconfig" "$HOME/.config/git/delta.gitconfig"
 git config --global --get-all include.path | grep -qx '~/.config/git/delta.gitconfig' \
   || git config --global --add include.path '~/.config/git/delta.gitconfig'
 
+# pi auto-loads every extension in ~/.pi/agent/extensions/ (status-footer.ts = its footer line)
+install_tree "$SRC/pi/extensions" "$HOME/.pi/agent/extensions"
+
 if command -v lazygit >/dev/null; then
   install_file "$SRC/lazygit/config.yml" "$(lazygit --print-config-dir)/config.yml"
 else
@@ -75,6 +78,11 @@ if command -v herdr >/dev/null; then
   plugins="$(herdr plugin list 2>/dev/null || true)"
   grep -q 'persiyanov.reviewr' <<<"$plugins" || herdr plugin install persiyanov/herdr-reviewr --yes
   grep -q 'herdr-file-viewer' <<<"$plugins" || herdr plugin install smarzban/herdr-file-viewer --yes
+
+  # Agent-state integration for pi (working/blocked/idle in Herdr's sidebar)
+  if command -v pi >/dev/null && ! herdr integration status 2>/dev/null | grep -q '^pi: current'; then
+    herdr integration install pi
+  fi
 
   # (Re)link the local layout plugin from its installed copy
   if ! grep -q "$LAYOUT_PLUGIN_ID" <<<"$plugins"; then
