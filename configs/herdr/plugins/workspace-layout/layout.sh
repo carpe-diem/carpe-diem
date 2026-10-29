@@ -1,6 +1,6 @@
 #!/bin/bash
 # Builds the standard tab set in a Herdr workspace, all rooted at its cwd:
-#   IA (claude) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
+#   IA (claude + reviewr) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
 # Only touches a workspace that is still a single pane, so it never clobbers
 # a layout you already arranged (or one restored after a server restart).
 set -euo pipefail
@@ -34,9 +34,14 @@ split() { # pane direction -> prints new pane id
     | "$JQ" -r '.result.pane.pane_id'
 }
 
-# IA: reuse the workspace's initial tab
+# IA: reuse the workspace's initial tab, with reviewr's diff pane on the right.
+# Opened as reviewr's own plugin pane (not `herdr-reviewr` in a plain split) so
+# its toggle (cmd+r) recognizes it and the binary resolves inside the plugin dir
 "$HERDR" tab rename "$root_tab" IA >/dev/null
 "$HERDR" pane run "$root_pane" claude >/dev/null
+"$HERDR" plugin pane open --plugin persiyanov.reviewr --entrypoint pane --placement split \
+  --target-pane "$root_pane" --direction right --cwd "$cwd" --no-focus >/dev/null \
+  || echo "reviewr not available, IA tab has claude only" >&2
 
 # Services: 2x2 grid of shells
 top_left=$(new_tab Services)

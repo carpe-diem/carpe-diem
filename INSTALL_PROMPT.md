@@ -49,7 +49,7 @@ asking for confirmation before any destructive step.
       close-pane-safe.sh, calls jq at `/usr/bin/jq` (see step 7)
     - copies `configs/herdr/plugins/workspace-layout/` -> ~/.config/herdr/local-plugins/workspace-layout/
       and `herdr plugin link`s it. On `workspace.created` it builds the tabs
-      IA (claude) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
+      IA (claude + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
       workspace's directory. It only touches single-pane workspaces; `prefix+shift+l` applies it
       to an existing one
     - installs the Herdr plugins the config binds keys to, if missing:
@@ -78,7 +78,7 @@ asking for confirmation before any destructive step.
     `herdr plugin list` (should list `carpe-diem.workspace-layout`, `persiyanov.reviewr` and
     `herdr-file-viewer`).
 12. Sanity-check the layout: `herdr workspace create --cwd ~/code/carpe-diem --label layout-test --no-focus`,
-    then `herdr tab list --workspace <id>` should show IA, Services (4 panes), Git, Code and Console.
+    then `herdr tab list --workspace <id>` should show IA (2 panes), Services (4 panes), Git, Code and Console.
     Close it with `herdr workspace close <id>`. Skip this step if the Herdr server isn't running.
 13. Make sure the Nerd Font used by Ghostty (`JetBrainsMono Nerd Font Mono`) is installed (e.g. via
     `brew install --cask font-jetbrains-mono-nerd-font`), otherwise Neovim's icons render as boxes.
