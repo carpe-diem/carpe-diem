@@ -39,9 +39,12 @@ split() { # pane direction -> prints new pane id
 # its toggle (cmd+r) recognizes it and the binary resolves inside the plugin dir
 "$HERDR" tab rename "$root_tab" IA >/dev/null
 "$HERDR" pane run "$root_pane" claude >/dev/null
-"$HERDR" plugin pane open --plugin persiyanov.reviewr --entrypoint pane --placement split \
-  --target-pane "$root_pane" --direction right --cwd "$cwd" --no-focus >/dev/null \
-  || echo "reviewr not available, IA tab has claude only" >&2
+# (reviewr's auto_open is off in its config, but skip if one is there anyway)
+if ! "$HERDR" pane list --workspace "$ws" | "$JQ" -e '.result.panes[] | select(.label == "reviewr")' >/dev/null; then
+  "$HERDR" plugin pane open --plugin persiyanov.reviewr --entrypoint pane --placement split \
+    --target-pane "$root_pane" --direction right --cwd "$cwd" --no-focus >/dev/null \
+    || echo "reviewr not available, IA tab has claude only" >&2
+fi
 
 # Services: 2x2 grid of shells
 top_left=$(new_tab Services)

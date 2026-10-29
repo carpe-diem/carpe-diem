@@ -52,6 +52,8 @@ asking for confirmation before any destructive step.
       IA (claude + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
       workspace's directory. It only touches single-pane workspaces; `prefix+shift+l` applies it
       to an existing one
+    - copies `configs/herdr/reviewr/config.toml` -> ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
+      (`auto_open = false`: the layout already opens reviewr, so worktree workspaces would get two)
     - installs the Herdr plugins the config binds keys to, if missing:
       `persiyanov/herdr-reviewr` (cmd+r) and `smarzban/herdr-file-viewer` (cmd+e; its renderers
       come from `brew install glow git-delta bat`, which you should run if they're missing)

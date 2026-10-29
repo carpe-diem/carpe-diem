@@ -58,6 +58,7 @@ install_file "$rendered" "$HERDR_DIR/config.toml"
 install_tree "$SRC/herdr/scripts" "$HERDR_DIR/scripts"
 chmod +x "$HERDR_DIR"/scripts/*.sh
 install_tree "$SRC/herdr/plugins/workspace-layout" "$LAYOUT_PLUGIN_DIR"
+install_file "$SRC/herdr/reviewr/config.toml" "$HERDR_DIR/plugins/config/persiyanov.reviewr/config.toml"
 
 install_tree "$SRC/nvim" "$HOME/.config/nvim"
 install_file "$SRC/git/delta.gitconfig" "$HOME/.config/git/delta.gitconfig"

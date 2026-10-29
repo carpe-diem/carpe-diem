@@ -1,0 +1,4 @@
+# reviewr's own config (installed to its herdr plugin config dir by update.sh).
+# The workspace-layout plugin already opens reviewr beside claude in the IA tab;
+# auto-open on worktree workspaces would add a second pane next to it.
+auto_open = false
