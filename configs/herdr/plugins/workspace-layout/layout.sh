@@ -1,6 +1,7 @@
 #!/bin/bash
 # Builds the standard tab set in a Herdr workspace, all rooted at its cwd:
 #   IA (claude + reviewr) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
+# Linked git worktrees get only IA + Console.
 # Only touches a workspace that is still a single pane, so it never clobbers
 # a layout you already arranged (or one restored after a server restart).
 set -euo pipefail
@@ -46,19 +47,24 @@ if ! "$HERDR" pane list --workspace "$ws" | "$JQ" -e '.result.panes[] | select(.
     || echo "reviewr not available, IA tab has claude only" >&2
 fi
 
-# Services: 2x2 grid of shells
-top_left=$(new_tab Services)
-top_right=$(split "$top_left" right)
-split "$top_left" down >/dev/null
-split "$top_right" down >/dev/null
+# Worktree workspaces are short-lived side branches: just IA + Console
+is_worktree=$("$JQ" -r '.result.workspace.worktree.is_linked_worktree // false' <<<"$ws_json")
 
-git_pane=$(new_tab Git)
-"$HERDR" pane run "$git_pane" lazygit >/dev/null
+if [ "$is_worktree" != true ]; then
+  # Services: 2x2 grid of shells
+  top_left=$(new_tab Services)
+  top_right=$(split "$top_left" right)
+  split "$top_left" down >/dev/null
+  split "$top_right" down >/dev/null
 
-code_pane=$(new_tab Code)
-"$HERDR" pane run "$code_pane" nvim >/dev/null
+  git_pane=$(new_tab Git)
+  "$HERDR" pane run "$git_pane" lazygit >/dev/null
+
+  code_pane=$(new_tab Code)
+  "$HERDR" pane run "$code_pane" nvim >/dev/null
+fi
 
 new_tab Console >/dev/null
 
 "$HERDR" tab focus "$root_tab" >/dev/null
-echo "layout applied to $ws ($cwd)"
+echo "layout applied to $ws ($cwd)$([ "$is_worktree" = true ] && echo ', worktree')"

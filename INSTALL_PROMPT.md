@@ -50,7 +50,7 @@ asking for confirmation before any destructive step.
     - copies `configs/herdr/plugins/workspace-layout/` -> ~/.config/herdr/local-plugins/workspace-layout/
       and `herdr plugin link`s it. On `workspace.created` it builds the tabs
       IA (claude + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
-      workspace's directory. It only touches single-pane workspaces; `prefix+shift+l` applies it
+      workspace's directory (git worktree workspaces get only IA and Console). It only touches single-pane workspaces; `prefix+shift+l` applies it
       to an existing one
     - copies `configs/herdr/reviewr/config.toml` -> ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
       (`auto_open = false`: the layout already opens reviewr, so worktree workspaces would get two)
