@@ -1,6 +1,6 @@
 #!/bin/bash
 # Builds the standard tab set in a Herdr workspace, all rooted at its cwd:
-#   IA (claude + reviewr) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
+#   IA (agent picker + reviewr) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console
 # Linked git worktrees get only IA + Console.
 # Only touches a workspace that is still a single pane, so it never clobbers
 # a layout you already arranged (or one restored after a server restart).
@@ -39,7 +39,13 @@ split() { # pane direction -> prints new pane id
 # Opened as reviewr's own plugin pane (not `herdr-reviewr` in a plain split) so
 # its toggle (cmd+r) recognizes it and the binary resolves inside the plugin dir
 "$HERDR" tab rename "$root_tab" IA >/dev/null
-"$HERDR" pane run "$root_pane" claude >/dev/null
+# pick-agent.sh asks which agent to start (claude, pi, ...; enter = claude)
+picker="$HOME/.config/herdr/scripts/pick-agent.sh"
+if [ -x "$picker" ]; then
+  "$HERDR" pane run "$root_pane" "$picker" >/dev/null
+else
+  "$HERDR" pane run "$root_pane" claude >/dev/null
+fi
 # (reviewr's auto_open is off in its config, but skip if one is there anyway)
 if ! "$HERDR" pane list --workspace "$ws" | "$JQ" -e '.result.panes[] | select(.label == "reviewr")' >/dev/null; then
   "$HERDR" plugin pane open --plugin persiyanov.reviewr --entrypoint pane --placement split \

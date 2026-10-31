@@ -28,7 +28,7 @@ asking for confirmation before any destructive step.
    It ships with macOS 15+; on older macOS run `brew install jq` and update the `JQ=` line in the
    copied script to `$(brew --prefix)/bin/jq`.
 8. Install `claude` (Claude Code) if not already on PATH — new Herdr workspaces start it in their
-   `IA` tab (see step 11).
+   `IA` tab, via an agent picker (`configs/herdr/scripts/pick-agent.sh`, enter = claude; see step 11).
 9. Install pi (https://pi.dev), the second coding agent used inside Herdr, if `pi` isn't on PATH:
    `curl -fsSL https://pi.dev/install.sh | sh` (installs to `~/.pi/agent/` and links
    `~/.local/bin/pi`). It needs Node.js >= 22.19 as the `node` on PATH; with nvm make sure
@@ -49,7 +49,7 @@ asking for confirmation before any destructive step.
       close-pane-safe.sh, calls jq at `/usr/bin/jq` (see step 7)
     - copies `configs/herdr/plugins/workspace-layout/` -> ~/.config/herdr/local-plugins/workspace-layout/
       and `herdr plugin link`s it. On `workspace.created` it builds the tabs
-      IA (claude + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
+      IA (agent picker — claude, pi, pilot, ... — + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
       workspace's directory (git worktree workspaces get only IA and Console). It only touches single-pane workspaces; `prefix+shift+l` applies it
       to an existing one
     - copies `configs/herdr/reviewr/config.toml` -> ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
