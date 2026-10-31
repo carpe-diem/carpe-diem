@@ -49,7 +49,7 @@ asking for confirmation before any destructive step.
       close-pane-safe.sh, calls jq at `/usr/bin/jq` (see step 7)
     - copies `configs/herdr/plugins/workspace-layout/` -> ~/.config/herdr/local-plugins/workspace-layout/
       and `herdr plugin link`s it. On `workspace.created` it builds the tabs
-      IA (agent picker — claude, pi, pilot, ... — + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
+      IA (agent picker — claude, pi, ... plus any `name=command` lines in ~/.config/herdr/agents.local — + reviewr split on the right) | Services (2x2 shells) | Git (lazygit) | Code (nvim) | Console, all in the
       workspace's directory (git worktree workspaces get only IA and Console). It only touches single-pane workspaces; `prefix+shift+l` applies it
       to an existing one
     - copies `configs/herdr/reviewr/config.toml` -> ~/.config/herdr/plugins/config/persiyanov.reviewr/config.toml
