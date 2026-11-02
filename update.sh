@@ -68,6 +68,19 @@ git config --global --get-all include.path | grep -qx '~/.config/git/delta.gitco
 # pi auto-loads every extension in ~/.pi/agent/extensions/ (status-footer.ts = its footer line)
 install_tree "$SRC/pi/extensions" "$HOME/.pi/agent/extensions"
 
+# pi packages (`pi install` records them in ~/.pi/agent/settings.json)
+PI_PACKAGES=(
+  https://github.com/earendil-works/pi-claude-code # Anthropic models through the Claude Code CLI login
+)
+if pi --version >/dev/null 2>&1; then
+  pi_installed="$(pi list 2>/dev/null || true)"
+  for pkg in "${PI_PACKAGES[@]}"; do
+    grep -qxF "  $pkg" <<<"$pi_installed" || { say "Installing pi package $pkg"; pi install "$pkg"; }
+  done
+elif command -v pi >/dev/null; then
+  say "pi doesn't start (Node >= 22.19 needed), skipping its packages"
+fi
+
 if command -v lazygit >/dev/null; then
   install_file "$SRC/lazygit/config.yml" "$(lazygit --print-config-dir)/config.yml"
 else
@@ -81,7 +94,9 @@ if command -v herdr >/dev/null; then
   grep -q 'herdr-file-viewer' <<<"$plugins" || herdr plugin install smarzban/herdr-file-viewer --yes
 
   # Agent-state integration for pi (working/blocked/idle in Herdr's sidebar)
-  if command -v pi >/dev/null && ! herdr integration status 2>/dev/null | grep -q '^pi: current'; then
+  # (captured first: under pipefail, `grep -q` closing the pipe early fails the check)
+  integrations="$(herdr integration status 2>/dev/null || true)"
+  if command -v pi >/dev/null && ! grep -q '^pi: current' <<<"$integrations"; then
     herdr integration install pi
   fi
 
