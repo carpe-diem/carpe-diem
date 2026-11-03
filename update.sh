@@ -6,6 +6,8 @@
 #   ./update.sh            git pull, then apply
 #   ./update.sh --no-pull  apply the working tree as-is (e.g. to test local edits)
 set -euo pipefail
+# Under pipefail `cmd | grep -q` can fail when grep exits early (SIGPIPE),
+# so checks grep captured output (<<<"$(cmd)") instead of a pipe.
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$REPO/configs"
@@ -62,7 +64,7 @@ install_file "$SRC/herdr/reviewr/config.toml" "$HERDR_DIR/plugins/config/persiya
 
 install_tree "$SRC/nvim" "$HOME/.config/nvim"
 install_file "$SRC/git/delta.gitconfig" "$HOME/.config/git/delta.gitconfig"
-git config --global --get-all include.path | grep -qx '~/.config/git/delta.gitconfig' \
+grep -qx '~/.config/git/delta.gitconfig' <<<"$(git config --global --get-all include.path || true)" \
   || git config --global --add include.path '~/.config/git/delta.gitconfig'
 
 # pi auto-loads every extension in ~/.pi/agent/extensions/ (status-footer.ts = its footer line)
@@ -95,7 +97,6 @@ if command -v herdr >/dev/null; then
   grep -q 'herdr-file-viewer' <<<"$plugins" || herdr plugin install smarzban/herdr-file-viewer --yes
 
   # Agent-state integration for pi (working/blocked/idle in Herdr's sidebar)
-  # (captured first: under pipefail, `grep -q` closing the pipe early fails the check)
   integrations="$(herdr integration status 2>/dev/null || true)"
   if command -v pi >/dev/null && ! grep -q '^pi: current' <<<"$integrations"; then
     herdr integration install pi
@@ -104,18 +105,18 @@ if command -v herdr >/dev/null; then
   # (Re)link the local layout plugin from its installed copy
   if ! grep -q "$LAYOUT_PLUGIN_ID" <<<"$plugins"; then
     herdr plugin link "$LAYOUT_PLUGIN_DIR" >/dev/null
-  elif ! herdr plugin list | grep -A2 "$LAYOUT_PLUGIN_ID" | grep -q "$LAYOUT_PLUGIN_DIR"; then
+  elif ! grep -qF "$LAYOUT_PLUGIN_DIR" <<<"$(grep -A2 "$LAYOUT_PLUGIN_ID" <<<"$plugins")"; then
     herdr plugin unlink "$LAYOUT_PLUGIN_ID" >/dev/null
     herdr plugin link "$LAYOUT_PLUGIN_DIR" >/dev/null
   fi
 
   herdr config check
-  if herdr status 2>/dev/null | grep -q 'status: running'; then
+  if grep -q 'status: running' <<<"$(herdr status 2>/dev/null || true)"; then
     herdr server reload-config >/dev/null && say "Reloaded running Herdr server"
   fi
 fi
 
-if command -v nvim >/dev/null && printf '%s\n' "${changed[@]:-}" | grep -q '/\.config/nvim/'; then
+if command -v nvim >/dev/null && grep -q '/\.config/nvim/' <<<"$(printf '%s\n' "${changed[@]:-}")"; then
   say "Neovim config changed, restoring plugins to lazy-lock.json"
   nvim --headless "+Lazy! restore" +qa >/tmp/carpe-diem-lazy-restore.log 2>&1 \
     || say "Lazy restore failed, see /tmp/carpe-diem-lazy-restore.log"
@@ -127,7 +128,7 @@ else
   say "Updated ${#changed[@]} file(s):"
   printf '    %s\n' "${changed[@]}"
   [ -d "$BACKUP" ] && say "Previous versions backed up to $BACKUP"
-  printf '%s\n' "${changed[@]}" | grep -q '/ghostty/' \
+  grep -q '/ghostty/' <<<"$(printf '%s\n' "${changed[@]}")" \
     && say "Ghostty: reload its config with cmd+shift+, (or restart it)"
 fi
 exit 0

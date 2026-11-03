@@ -40,3 +40,10 @@ command = "carpe-diem.workspace-layout.apply"
 
 [ui.sound]
 enabled = false
+
+# One line per agent in the sidebar instead of two; "Local" is hidden, other
+# machines still show their label
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "machine", rules = [{ equals = "Local", hide = true }] }, "workspace", "tab", "agent"],
+]
