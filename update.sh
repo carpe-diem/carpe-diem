@@ -71,6 +71,7 @@ install_tree "$SRC/pi/extensions" "$HOME/.pi/agent/extensions"
 # pi packages (`pi install` records them in ~/.pi/agent/settings.json)
 PI_PACKAGES=(
   https://github.com/earendil-works/pi-claude-code # Anthropic models through the Claude Code CLI login
+  npm:pi-anthropic-oauth                            # Claude Pro/Max OAuth login inside pi
 )
 if pi --version >/dev/null 2>&1; then
   pi_installed="$(pi list 2>/dev/null || true)"

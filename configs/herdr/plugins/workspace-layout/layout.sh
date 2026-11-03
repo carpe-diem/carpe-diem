@@ -55,6 +55,13 @@ fi
 
 # Worktree workspaces are short-lived side branches: just IA + Console
 is_worktree=$("$JQ" -r '.result.workspace.worktree.is_linked_worktree // false' <<<"$ws_json")
+# Herdr only tags workspaces it opened as worktrees; a plain workspace whose
+# cwd is a linked worktree has its own git dir apart from the common one
+if [ "$is_worktree" != true ]; then
+  git_dir=$(git -C "$cwd" rev-parse --path-format=absolute --git-dir 2>/dev/null || true)
+  common_dir=$(git -C "$cwd" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)
+  [ -n "$git_dir" ] && [ "$git_dir" != "$common_dir" ] && is_worktree=true
+fi
 
 if [ "$is_worktree" != true ]; then
   # Services: 2x2 grid of shells

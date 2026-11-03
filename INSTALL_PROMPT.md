@@ -72,7 +72,8 @@ asking for confirmation before any destructive step.
     - `pi install`s the pi packages listed in `PI_PACKAGES` if `pi list` doesn't show them:
       `earendil-works/pi-claude-code`, which routes pi's Anthropic models through the Claude Code
       CLI so they use my Claude subscription (it uses `claude`'s own login, not pi's `/login`;
-      pick a model from the "Claude Code Subscription" provider in pi). Skipped with a warning
+      pick a model from the "Claude Code Subscription" provider in pi), and `npm:pi-anthropic-oauth`
+      (Claude Pro/Max OAuth login from inside pi). Skipped with a warning
       when pi can't start because the default node is older than 22.19
     - copies `configs/nvim/` -> ~/.config/nvim/ (the whole tree, including gitsigns.nvim and
       diffview.nvim: `<leader>gvo` open, `<leader>gvc` close, `<leader>gvf` file history,
