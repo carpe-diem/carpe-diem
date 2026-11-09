@@ -73,6 +73,12 @@ asking for confirmation before any destructive step.
       `~/.claude/skills/herdr/SKILL.md` and `~/.pi/agent/skills/herdr/SKILL.md`, so claude and pi
       can read and prompt other agents by name (`herdr agent rename <pane> backend`, then
       `herdr agent prompt backend "..." --wait`)
+    - links the local `configs/herdr/plugins/agent-map/` plugin and wires its logger: Claude Code
+      hooks (PreToolUse/PostToolUse/PostToolUseFailure on Bash, merged into
+      ~/.claude/settings.json without touching existing hooks) and the pi extension
+      `configs/pi/extensions/agent-bus.ts`. Every `herdr agent prompt` an agent runs is appended to
+      ~/.local/state/carpe-diem/agent-bus.jsonl; `prefix+m` toggles a live map of agents and
+      those messages
     - `pi install`s the pi packages listed in `PI_PACKAGES` if `pi list` doesn't show them:
       `earendil-works/pi-claude-code`, which routes pi's Anthropic models through the Claude Code
       CLI so they use my Claude subscription (it uses `claude`'s own login, not pi's `/login`;

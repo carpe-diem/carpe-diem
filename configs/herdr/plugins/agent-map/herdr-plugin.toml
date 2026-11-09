@@ -1,0 +1,19 @@
+id = "carpe-diem.agent-map"
+name = "Agent Map"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Live map of agents and the `herdr agent prompt` messages between them"
+platforms = ["macos", "linux"]
+
+[[panes]]
+id = "map"
+title = "agent map"
+placement = "overlay"
+command = ["python3", "agent-bus.py", "map"]
+
+# Bound to prefix+m in config.toml
+[[actions]]
+id = "toggle"
+title = "Toggle agent map"
+contexts = ["pane", "workspace"]
+command = ["bash", "toggle.sh"]

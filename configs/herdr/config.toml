@@ -31,6 +31,12 @@ key = "cmd+w"
 type = "shell"
 command = "/Users/albertopaparelli/.config/herdr/scripts/close-pane-safe.sh"
 
+# Live map of agents and the messages they send each other (agent-map plugin)
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "carpe-diem.agent-map.toggle"
+
 # Re-apply the IA/Services/Git/Code/Console tabs to the current workspace
 # (new workspaces get them automatically; only acts on a single-pane workspace)
 [[keys.command]]

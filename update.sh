@@ -13,8 +13,8 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="$REPO/configs"
 BACKUP="$HOME/.config/carpe-diem-backups/$(date +%Y%m%d-%H%M%S)"
 HERDR_DIR="$HOME/.config/herdr"
-LAYOUT_PLUGIN_ID="carpe-diem.workspace-layout"
-LAYOUT_PLUGIN_DIR="$HERDR_DIR/local-plugins/workspace-layout"
+# Local Herdr plugins shipped in configs/herdr/plugins/<dir>, as "<dir>:<plugin id>"
+LOCAL_PLUGINS=(workspace-layout:carpe-diem.workspace-layout agent-map:carpe-diem.agent-map)
 changed=()
 
 say() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
@@ -55,12 +55,16 @@ install_file "$SRC/ghostty/config" "$HOME/.config/ghostty/config"
 # config.toml hardcodes absolute script paths; rewrite them for this $HOME
 rendered="$(mktemp)"
 skill="$(mktemp)"
-trap 'rm -f "$rendered" "$skill"' EXIT
+claude_settings="$(mktemp)"
+trap 'rm -f "$rendered" "$skill" "$claude_settings"' EXIT
 sed -E "s#/Users/[^/\"]+/\.config/herdr/#$HERDR_DIR/#g" "$SRC/herdr/config.toml" >"$rendered"
 install_file "$rendered" "$HERDR_DIR/config.toml"
 install_tree "$SRC/herdr/scripts" "$HERDR_DIR/scripts"
 chmod +x "$HERDR_DIR"/scripts/*.sh
-install_tree "$SRC/herdr/plugins/workspace-layout" "$LAYOUT_PLUGIN_DIR"
+for p in "${LOCAL_PLUGINS[@]}"; do
+  install_tree "$SRC/herdr/plugins/${p%%:*}" "$HERDR_DIR/local-plugins/${p%%:*}"
+done
+chmod +x "$HERDR_DIR"/local-plugins/*/*.sh "$HERDR_DIR"/local-plugins/*/*.py 2>/dev/null || true
 install_file "$SRC/herdr/reviewr/config.toml" "$HERDR_DIR/plugins/config/persiyanov.reviewr/config.toml"
 
 install_tree "$SRC/nvim" "$HOME/.config/nvim"
@@ -103,19 +107,44 @@ if command -v herdr >/dev/null; then
     herdr integration install pi
   fi
 
-  # (Re)link the local layout plugin from its installed copy
-  if ! grep -q "$LAYOUT_PLUGIN_ID" <<<"$plugins"; then
-    herdr plugin link "$LAYOUT_PLUGIN_DIR" >/dev/null
-  elif ! grep -qF "$LAYOUT_PLUGIN_DIR" <<<"$(grep -A2 "$LAYOUT_PLUGIN_ID" <<<"$plugins")"; then
-    herdr plugin unlink "$LAYOUT_PLUGIN_ID" >/dev/null
-    herdr plugin link "$LAYOUT_PLUGIN_DIR" >/dev/null
-  fi
+  # (Re)link the local plugins from their installed copies
+  for p in "${LOCAL_PLUGINS[@]}"; do
+    dir="$HERDR_DIR/local-plugins/${p%%:*}" id="${p#*:}"
+    if ! grep -q "$id" <<<"$plugins"; then
+      herdr plugin link "$dir" >/dev/null
+    elif ! grep -qF "$dir" <<<"$(grep -A2 "$id" <<<"$plugins")"; then
+      herdr plugin unlink "$id" >/dev/null
+      herdr plugin link "$dir" >/dev/null
+    fi
+  done
 
   # Herdr's agent skill (release-matched, from `herdr --skill`) so claude and pi can
   # inspect and drive other panes/agents: `herdr agent prompt backend "..." --wait`
   if herdr --skill >"$skill" 2>/dev/null && [ -s "$skill" ]; then
     install_file "$skill" "$HOME/.claude/skills/herdr/SKILL.md"
     install_file "$skill" "$HOME/.pi/agent/skills/herdr/SKILL.md"
+  fi
+
+  # Claude Code hooks that log `herdr agent prompt` calls for the agent map (prefix+m);
+  # merged into ~/.claude/settings.json next to whatever hooks are already there
+  if command -v claude >/dev/null && python3 - "$HOME/.claude/settings.json" "$claude_settings" <<'PY'
+import json, os, sys
+src, out = sys.argv[1], sys.argv[2]
+settings = json.load(open(src)) if os.path.exists(src) else {}
+cmd = 'python3 "$HOME/.config/herdr/local-plugins/agent-map/agent-bus.py" claude-hook'
+hooks = settings.setdefault("hooks", {})
+added = False
+for event in ("PreToolUse", "PostToolUse", "PostToolUseFailure"):
+    entries = hooks.setdefault(event, [])
+    if not any(h.get("command") == cmd for e in entries for h in e.get("hooks", [])):
+        entries.append({"matcher": "Bash", "hooks": [{"type": "command", "command": cmd}]})
+        added = True
+json.dump(settings, open(out, "w"), indent=2)
+open(out, "a").write("\n")
+sys.exit(0 if added else 1)
+PY
+  then
+    install_file "$claude_settings" "$HOME/.claude/settings.json"
   fi
 
   herdr config check
