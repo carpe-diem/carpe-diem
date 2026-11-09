@@ -54,7 +54,8 @@ install_file "$SRC/ghostty/config" "$HOME/.config/ghostty/config"
 
 # config.toml hardcodes absolute script paths; rewrite them for this $HOME
 rendered="$(mktemp)"
-trap 'rm -f "$rendered"' EXIT
+skill="$(mktemp)"
+trap 'rm -f "$rendered" "$skill"' EXIT
 sed -E "s#/Users/[^/\"]+/\.config/herdr/#$HERDR_DIR/#g" "$SRC/herdr/config.toml" >"$rendered"
 install_file "$rendered" "$HERDR_DIR/config.toml"
 install_tree "$SRC/herdr/scripts" "$HERDR_DIR/scripts"
@@ -108,6 +109,13 @@ if command -v herdr >/dev/null; then
   elif ! grep -qF "$LAYOUT_PLUGIN_DIR" <<<"$(grep -A2 "$LAYOUT_PLUGIN_ID" <<<"$plugins")"; then
     herdr plugin unlink "$LAYOUT_PLUGIN_ID" >/dev/null
     herdr plugin link "$LAYOUT_PLUGIN_DIR" >/dev/null
+  fi
+
+  # Herdr's agent skill (release-matched, from `herdr --skill`) so claude and pi can
+  # inspect and drive other panes/agents: `herdr agent prompt backend "..." --wait`
+  if herdr --skill >"$skill" 2>/dev/null && [ -s "$skill" ]; then
+    install_file "$skill" "$HOME/.claude/skills/herdr/SKILL.md"
+    install_file "$skill" "$HOME/.pi/agent/skills/herdr/SKILL.md"
   fi
 
   herdr config check

@@ -69,6 +69,10 @@ asking for confirmation before any destructive step.
     - copies `configs/pi/extensions/` -> ~/.pi/agent/extensions/ (pi auto-loads them).
       `status-footer.ts` replaces pi's footer with one line:
       `~/path/dir · git:branch · provider/model (thinking)   [▪▪........] 18% (256k)`
+    - writes Herdr's agent skill (`herdr --skill`, matched to the installed Herdr) to
+      `~/.claude/skills/herdr/SKILL.md` and `~/.pi/agent/skills/herdr/SKILL.md`, so claude and pi
+      can read and prompt other agents by name (`herdr agent rename <pane> backend`, then
+      `herdr agent prompt backend "..." --wait`)
     - `pi install`s the pi packages listed in `PI_PACKAGES` if `pi list` doesn't show them:
       `earendil-works/pi-claude-code`, which routes pi's Anthropic models through the Claude Code
       CLI so they use my Claude subscription (it uses `claude`'s own login, not pi's `/login`;
