@@ -9,8 +9,9 @@
 #
 # In the pilot repo (or a worktree of it: bin/pilot.mjs at the git root) it
 # also offers "pilot qa" and "pilot prod": `npm ci`, then pilot against that
-# gateway here, plus `node bin/pilot.mjs --gateway=<gw> web` in a pane on the
-# right, 1/4 of the tab wide.
+# gateway here, plus `npm --prefix web/app ci` and
+# `node bin/pilot.mjs --gateway=<gw> web --rebuild` in a pane on the right,
+# 1/4 of the tab wide.
 set -u
 
 HERDR="${HERDR_BIN_PATH:-herdr}"
@@ -31,8 +32,8 @@ if [ "${1:-}" = --pilot ]; then
     web=$("$HERDR" pane split "$HERDR_PANE_ID" --direction right --ratio "$ratio" --cwd "$root" --no-focus \
       | "$JQ" -r '.result.pane.pane_id')
     "$HERDR" pane rename "$web" "pilot web $gw" >/dev/null
-    # give pilot a head start before the web UI
-    "$HERDR" pane run "$web" "sleep 3; node bin/pilot.mjs --gateway=$gw web" >/dev/null
+    # give pilot a head start, then install the web app's deps and start the web UI
+    "$HERDR" pane run "$web" "sleep 3; npm --prefix web/app ci && node bin/pilot.mjs --gateway=$gw web --rebuild" >/dev/null
   fi
   if command -v pilot >/dev/null; then
     exec pilot --gateway="$gw"
