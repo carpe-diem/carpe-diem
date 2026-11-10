@@ -1,8 +1,6 @@
-# Ghostty — dedicated Herdr host.
-# General terminal usage lives in Kitty; this window is a single surface that runs Herdr.
-
-# --- Launch Herdr instead of a shell ---
-command = /opt/homebrew/bin/herdr
+# Ghostty — Herdr host. It opens a plain shell; run `herdr` in it to attach.
+# General terminal usage lives in Kitty. The keybinds below send Herdr's prefix
+# chords, so they assume Herdr is running in the window.
 
 # --- Font ---
 # Nerd Font Mono variant (fixed glyph width) so Neovim/LazyVim icons render

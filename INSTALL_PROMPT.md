@@ -14,7 +14,7 @@ asking for confirmation before any destructive step.
 2. Install the Claude Code integration if `herdr integration status` doesn't already show
    `claude: current`: `herdr integration install claude`.
 3. Install Ghostty via Homebrew (`brew install --cask ghostty`) if not already installed — it's
-   the dedicated Herdr host (its config launches `/opt/homebrew/bin/herdr` directly).
+   the Herdr host (it opens a plain shell; run `herdr` in it to attach; its keybinds send Herdr's prefix chords).
 4. Install Neovim via Homebrew (`brew install neovim`) if not already installed — steps 15–16
    need it.
 5. Install `fd` via Homebrew (`brew install fd`) if not already installed — the Neovim file/symbol

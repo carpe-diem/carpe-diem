@@ -37,8 +37,8 @@ Welcome to my GitHub profile! I'm a passionate developer who loves to code and c
 
 ## ⚙️ Dotfiles
 
-This repo doubles as my dev environment config: Ghostty pinned as a dedicated host for
-[Herdr](https://herdr.dev), Herdr's own theme/keybind setup, and a [LazyVim](https://www.lazyvim.org)-based
+This repo doubles as my dev environment config: Ghostty as the host for
+[Herdr](https://herdr.dev) (it opens a shell; `herdr` attaches), Herdr's own theme/keybind setup, and a [LazyVim](https://www.lazyvim.org)-based
 Neovim config (Python LSP, file tree, git blame on the current line, a trimmed-down Ruff rule set,
 lazygit wired to `<leader>gg`), plus [pi](https://pi.dev) with Herdr's integration and a one-line
 footer extension (path · git branch · model · context bar), and an agent map (`prefix+m` in Herdr)
