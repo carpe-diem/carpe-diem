@@ -45,7 +45,7 @@ footer extension (path · git branch · model · context bar), and an agent map 
 that shows live which agent asked which other agent for what.
 See [`configs/`](./configs) for the files and [`INSTALL_PROMPT.md`](./INSTALL_PROMPT.md) for a
 ready-to-paste prompt that has an AI agent install all of it on a new machine, so every machine
-ends up with the same setup. New Herdr workspaces open with the tabs IA (agent picker: claude, pi, ... + reviewr), Services
+ends up with the same setup. New Herdr workspaces open with the tabs IA (agent picker: claude, pi, ..., and in the pilot repo pilot qa/prod with its web UI beside it, + reviewr), Services
 (2x2 shells), Git (lazygit), Code (nvim) and Console (worktrees: just IA and Console). After changing a config, push it and run
 [`./update.sh`](./update.sh) on each machine to apply it (it pulls, copies only what changed, and
 backs up whatever it overwrites).
