@@ -85,7 +85,9 @@ asking for confirmation before any destructive step.
       pick a model from the "Claude Code Subscription" provider in pi), and `npm:pi-anthropic-oauth`
       (Claude Pro/Max OAuth login from inside pi). Skipped with a warning
       when pi can't start because the default node is older than 22.19
-    - copies `configs/nvim/` -> ~/.config/nvim/ (the whole tree, including gitsigns.nvim and
+    - copies `configs/nvim/` -> ~/.config/nvim/ (the whole tree, including the LazyVim extras in
+      `lazyvim.json`: `lang.json` and `lang.markdown`, whose markdown-preview.nvim opens a live
+      browser preview with `<leader>cp`; gitsigns.nvim and
       diffview.nvim: `<leader>gvo` open, `<leader>gvc` close, `<leader>gvf` file history,
       `<leader>gvh` repo history, all under `<leader>gv` because LazyVim already owns
       `<leader>gd`/`gD`/`gh`)
