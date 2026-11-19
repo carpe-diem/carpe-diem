@@ -50,6 +50,10 @@ ends up with the same setup. New Herdr workspaces open with the tabs IA (agent p
 [`./update.sh`](./update.sh) on each machine to apply it (it pulls, copies only what changed, and
 backs up whatever it overwrites).
 
+[`tv/`](./tv) is how my Android TVs are set up (debloat, home screen, remote buttons, apps), on top of
+[CleanYourTV](https://github.com/Gathin23/cleanyourtv): `update.sh` installs a `tv-setup` skill, so
+"set up this TV" in Claude Code or pi does a new one the same way and keeps the notes current.
+
 It also holds my shared local dev infrastructure in [`infra/`](./infra): one Postgres, S3
 (SeaweedFS), Logto, Mailpit and Caddy on `*.localhost` for every project, each project getting its
 own database, bucket and site via `infra/infra project create <name>`. Works with Docker or Podman.

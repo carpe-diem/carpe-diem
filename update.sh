@@ -56,7 +56,8 @@ install_file "$SRC/ghostty/config" "$HOME/.config/ghostty/config"
 rendered="$(mktemp)"
 skill="$(mktemp)"
 claude_settings="$(mktemp)"
-trap 'rm -f "$rendered" "$skill" "$claude_settings"' EXIT
+tv_skill="$(mktemp)"
+trap 'rm -f "$rendered" "$skill" "$claude_settings" "$tv_skill"' EXIT
 sed -E "s#/Users/[^/\"]+/\.config/herdr/#$HERDR_DIR/#g" "$SRC/herdr/config.toml" >"$rendered"
 install_file "$rendered" "$HERDR_DIR/config.toml"
 install_tree "$SRC/herdr/scripts" "$HERDR_DIR/scripts"
@@ -74,6 +75,11 @@ grep -qx '~/.config/git/delta.gitconfig' <<<"$(git config --global --get-all inc
 
 # pi auto-loads every extension in ~/.pi/agent/extensions/ (status-footer.ts = its footer line)
 install_tree "$SRC/pi/extensions" "$HOME/.pi/agent/extensions"
+
+# tv-setup skill: points claude and pi at this checkout's tv/ folder (choices, theme, device notes)
+sed "s#__TV_DIR__#$REPO/tv#g" "$REPO/tv/skill/SKILL.md" >"$tv_skill"
+install_file "$tv_skill" "$HOME/.claude/skills/tv-setup/SKILL.md"
+install_file "$tv_skill" "$HOME/.pi/agent/skills/tv-setup/SKILL.md"
 
 # pi packages (`pi install` records them in ~/.pi/agent/settings.json)
 PI_PACKAGES=(
