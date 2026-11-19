@@ -15,4 +15,4 @@ files as my decisions, and CleanYourTV's `PROMPT.md` as the procedure and the sa
    showed, show the diff, and commit only with my OK. If `__TV_DIR__` has uncommitted changes or is on
    another branch, say so before editing.
 
-If `__TV_DIR__` does not exist, the repo moved: ask where carpe-diem is, and re-run its `update.sh`.
+If `__TV_DIR__` does not exist, the repo moved: ask where carpe-diem is, and re-run its `tv/install-skill.sh`.

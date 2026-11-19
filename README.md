@@ -51,7 +51,7 @@ ends up with the same setup. New Herdr workspaces open with the tabs IA (agent p
 backs up whatever it overwrites).
 
 [`tv/`](./tv) is how my Android TVs are set up (debloat, home screen, remote buttons, apps), on top of
-[CleanYourTV](https://github.com/Gathin23/cleanyourtv): `update.sh` installs a `tv-setup` skill, so
+[CleanYourTV](https://github.com/Gathin23/cleanyourtv): `tv/install-skill.sh` installs a `tv-setup` skill, so
 "set up this TV" in Claude Code or pi does a new one the same way and keeps the notes current.
 
 It also holds my shared local dev infrastructure in [`infra/`](./infra): one Postgres, S3

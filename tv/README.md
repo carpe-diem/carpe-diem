@@ -13,11 +13,13 @@ per-model debloat lists; this folder only holds **my** choices and what I learne
 | [`theme/config.json`](./theme/config.json) | My launcher config, pushed as a CleanYourTV theme: dock, remote buttons, volume |
 | [`devices/`](./devices) | What each TV model needed beyond CleanYourTV's own list |
 | [`LEARNINGS.md`](./LEARNINGS.md) | Mac-side problems hit while doing it, and their fixes |
-| [`skill/SKILL.md`](./skill/SKILL.md) | The `tv-setup` skill; `../update.sh` installs it for Claude Code and pi |
+| [`skill/SKILL.md`](./skill/SKILL.md) | The `tv-setup` skill; [`install-skill.sh`](./install-skill.sh) installs it for Claude Code and pi |
 
 ## Use
 
-In Claude Code (or pi), with the TV on the same network and USB debugging on:
+Once per machine: `tv/install-skill.sh` (re-run it after changing `skill/SKILL.md`).
+
+Then, in Claude Code (or pi), with the TV on the same network and USB debugging on:
 
 > set up this TV
 
