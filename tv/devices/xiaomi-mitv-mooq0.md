@@ -25,7 +25,7 @@ the TV is stuck. The key helper is not optional on this model.
 
 | Firmware | Volume held, helper on | D-pad seek in SmartTube, helper on |
 |---|---|---|
-| Android 11 (`8835`) | One step per press: the repeat is dropped. Comes back with the helper off | Not tested yet |
+| Android 11 (`8835`) | One step per press: the repeat is dropped. Comes back with the helper off | Works (`key_filter` only) |
 | Android 10 (`5135`) | Repeats normally | Works (`key_filter` only) |
 
 - **Don't use `consume_volume_keys` on this model.** Tried on the Android 10 set: Left/Right stopped
